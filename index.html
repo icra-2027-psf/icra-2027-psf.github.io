@@ -495,7 +495,8 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     return cur.frames - 1;
   };
   const tauOf = (f) => {
-    for (const s of cur.segs) if (s.f1 > s.f0 && f >= s.f0 && f <= s.f1) return s.t0 + (s.t1 - s.t0) * (f - s.f0) / (s.f1 - s.f0);
+    // half-open, so a chunk's first frame maps to the start of its execution, after the imagination hold
+    for (const s of cur.segs) if (s.f1 > s.f0 && f >= s.f0 && f < s.f1) return s.t0 + (s.t1 - s.t0) * (f - s.f0) / (s.f1 - s.f0);
     return cur.total;
   };
   // Value's last step is the critic's value after the fall, shown once the recording has ended
