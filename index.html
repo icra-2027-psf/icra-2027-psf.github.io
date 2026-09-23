@@ -73,7 +73,12 @@ h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
 .badge svg { width: 15px; height: 15px; }
 .pvid .b-cam { left: 8px; top: 8px; } .pvid .b-exec { right: 8px; top: 8px; } .pvid .b-stat { left: 8px; bottom: 8px; }
 .badge.ok { color: var(--green); } .badge.bad { color: var(--red); } .badge.fbx { background: var(--purple); color: #fff; }
-.pdec { padding: 12px 14px; min-width: 0; border-left: 1px solid var(--rule); display: flex; flex-direction: column; }
+.pvid::after, .pdec::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3; border-radius: 2px;
+  box-shadow: inset 0 0 0 2px rgba(28, 95, 196, 0); transition: box-shadow .35s; }
+.pvid.focus::after, .pdec.focus::after { animation: breathe 1.8s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { box-shadow: inset 0 0 0 2px rgba(28, 95, 196, .85); } 50% { box-shadow: inset 0 0 0 2px rgba(28, 95, 196, .3); } }
+@media (prefers-reduced-motion: reduce) { .pvid.focus::after, .pdec.focus::after { animation: none; box-shadow: inset 0 0 0 2px rgba(28, 95, 196, .7); } }
+.pdec { position: relative; padding: 12px 14px; min-width: 0; border-left: 1px solid var(--rule); display: flex; flex-direction: column; }
 .dtop { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .dtop .t { font-weight: 600; font-size: .95rem; font-variant-numeric: tabular-nums; }
 .dtop button { font: inherit; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #dcdfe3; background: var(--bg); cursor: pointer; color: var(--ink); line-height: 1; }
@@ -114,7 +119,7 @@ h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
 .jc.ok { color: var(--green); } .jc.bad { color: var(--red); }
 .jc.selok { background: var(--green); color: #fff; } .jc.selfb { background: var(--purple); color: #fff; }
 /* once the decision is made, the plan it selected is outlined and tagged, with one pulse as it is revealed */
-.seltag { position: absolute; left: 50%; top: -9px; transform: translateX(-50%); z-index: 1; display: none; align-items: center; gap: 3px;
+.seltag { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); z-index: 1; display: none; align-items: center; gap: 3px;
   font-size: .66rem; font-weight: 700; color: #fff; border-radius: 999px; padding: 1px 7px 1px 4px; white-space: nowrap; }
 .seltag svg { width: 11px; height: 11px; }
 .seltag.selok { background: var(--green); } .seltag.selfb { background: var(--purple); } .seltag.selbad { background: var(--red); }
@@ -257,7 +262,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   <div class="card" id="panel">
     <div class="chead" id="phead"></div>
     <div class="pbody">
-      <div class="pvid">
+      <div class="pvid" id="pvid">
         <video id="real" muted playsinline preload="auto"></video>
         <span class="badge b-cam"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cam"/></svg>physical</span>
         <span class="badge b-exec" id="bexec"></span>
@@ -611,6 +616,10 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     $('bexec').innerHTML = thinking ? 'imagining plans…' : !running ? 'holding' : fb ? `executing ${cap(d.action)}` : 'executing nominal chunk';
     const x = X(tau);
     $('ph').setAttribute('transform', `translate(${x} 0)`);
+    // while playing, outline the pane to watch: the decision while plans are imagined or a verdict is fresh, else the recording
+    const right = imagines() ? phase === 'imagine' : cur.k === 'V' && (dk >= cur.decisions.length || tau - cur.tau[dk] < 0.9);
+    $('pvid').classList.toggle('focus', playing && !right);
+    $('dec').classList.toggle('focus', playing && right);
     $('dec').classList.toggle('thinking', thinking);
     if (imagines()) paintPlans();
   }
@@ -744,7 +753,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 
   function cell(p, i, row, sel, vanish) {
     const ok = p.j >= 0;
-    const tag = sel ? `<span class="seltag ${sel}">${sel === 'selfb' ? icon('shield') : sel === 'selok' ? icon('ok') : icon('bad')}selected</span>` : '';
+    const tag = sel ? `<span class="seltag ${sel}">${sel === 'selfb' ? icon('shield') : sel === 'selok' ? icon('ok') : icon('bad')}${ok ? 'certified' : 'safest'}</span>` : '';
     return `<div class="cell${sel ? ' sel ' + sel : ''}" data-p="${i}" data-row="${row}" data-len="${p.trace.length}"><div class="clip">${tag}<video muted playsinline preload="auto" data-row="${row}" data-len="${p.trace.length}"></video>
       <span class="badge b-cloud">${icon('cloud')}</span><span class="jc ${sel === 'selbad' ? 'bad' : sel || (ok ? 'ok' : 'bad')}"><i>J</i> ${fmt(p.j)}</span>
       ${vanish ? '<span class="vanish"></span><span class="vanish-l">full bottle vanishes</span>' : ''}</div>
