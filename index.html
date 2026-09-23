@@ -3,51 +3,813 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World Model Predictive Safety Filtering — Supplementary Material</title>
+<meta name="robots" content="noindex">
+<title>World Model Predictive Safety Filtering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#1a1a1a; --muted:#666; --rule:#ddd; --accent:#2a5db0; }
-  body { margin:0; padding:2rem 1rem 4rem; font:16px/1.55 Georgia, "Times New Roman", serif; color:var(--ink); background:#fff; }
-  main { max-width: 52rem; margin: 0 auto; }
-  h1 { font-size:1.7rem; line-height:1.25; margin:0 0 .25rem; }
-  h2 { font-size:1.25rem; margin:2.5rem 0 .75rem; padding-bottom:.25rem; border-bottom:1px solid var(--rule); }
-  .byline { color:var(--muted); margin:0 0 1.5rem; }
-  nav a { margin-right:1rem; color:var(--accent); text-decoration:none; }
-  nav a:hover { text-decoration:underline; }
-  table { border-collapse:collapse; width:100%; font-size:.95rem; margin:1rem 0; }
-  th, td { padding:.35rem .5rem; text-align:right; border-bottom:1px solid var(--rule); }
-  th:first-child, td:first-child { text-align:left; }
-  thead th { border-bottom:2px solid var(--ink); }
-  figure { margin:1rem 0; }
-  figure img { max-width:100%; height:auto; display:block; }
-  figcaption { font-size:.9rem; color:var(--muted); margin-top:.4rem; }
-  .placeholder { color:var(--muted); font-style:italic; }
-  footer { margin-top:3rem; font-size:.85rem; color:var(--muted); }
+:root {
+  --ink: #1d1f23; --sub: #555a62; --faint: #8b9098; --rule: #e6e8eb; --soft: #f6f7f9; --bg: #fff;
+  --accent: #1c5fc4; --green: #1f9d57; --red: #d2443c; --purple: #7454d4; --amber: #c98300; --amber-bg: #fdf5e4; --grey: #c4c8ce;
+  --w: 960px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 64px; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 Inter, "Segoe UI", system-ui, -apple-system, sans-serif; }
+a { color: var(--accent); }
+.sc { font-variant: small-caps; letter-spacing: .02em; }
+.fb { font-weight: 600; }
+sup.ic svg { width: .72em; height: .72em; vertical-align: -0.05em; margin-left: 1px; }
+
+/* nav */
+.topnav { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.93); backdrop-filter: blur(6px); border-bottom: 1px solid var(--rule); }
+.topnav .in { max-width: var(--w); margin: 0 auto; padding: 0 16px; display: flex; gap: 26px; overflow-x: auto; scrollbar-width: none; }
+.topnav a { color: var(--sub); text-decoration: none; font-size: .9rem; font-weight: 500; padding: 14px 0 12px; border-bottom: 2px solid transparent; white-space: nowrap; }
+.topnav a.on { color: var(--accent); border-bottom-color: var(--accent); }
+.topnav .grp { display: flex; align-items: center; gap: 8px; }
+.topnav .subs { display: flex; align-items: center; gap: 2px; background: var(--soft); border: 1px solid var(--rule); border-radius: 999px; padding: 2px; position: relative; }
+.topnav .subs::before { content: ""; position: absolute; left: -9px; top: 50%; width: 8px; border-top: 1px solid #cfd3d9; }
+.topnav .subs a { font-size: .8rem; font-weight: 500; color: var(--sub); padding: 3px 11px; border: 0; border-radius: 999px; }
+.topnav .subs a:hover { color: var(--ink); }
+.topnav .subs a.on { background: var(--bg); color: var(--accent); box-shadow: 0 0 0 1px #d5d8dd; }
+
+main { max-width: var(--w); margin: 0 auto; padding: 0 16px 40px; }
+.hero { text-align: center; padding: 56px 0 8px; }
+.hero h1 { font-size: clamp(1.7rem, 4.2vw, 2.4rem); line-height: 1.2; margin: 0 0 14px; font-weight: 700; letter-spacing: -0.015em; }
+.hero .by { color: var(--sub); margin: 0 0 28px; }
+.ph { border: 1.5px dashed #cdd1d6; border-radius: 12px; background: #fafbfc; color: var(--faint); display: flex; align-items: center; justify-content: center; text-align: center; padding: 22px 16px; font-size: .95rem; }
+.ph.video { aspect-ratio: 16 / 9; max-width: 800px; margin: 0 auto; }
+
+section { padding: 36px 0 8px; border-top: 1px solid var(--rule); margin-top: 36px; }
+section.first { border-top: 0; margin-top: 8px; }
+h2 { font-size: 1.5rem; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
+.subt { color: var(--sub); margin: 0 0 16px; }
+
+/* chips */
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 0 12px; padding: 1px; }
+.chip { font: inherit; font-size: .9rem; font-weight: 600; border: 1px solid #d5d8dd; background: var(--bg); color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; }
+.chip:hover { background: var(--soft); }
+.chip[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+.chip .dot.success { background: var(--green); } .chip .dot.failure { background: var(--red); }
+.chip[aria-selected="true"] .dot { box-shadow: 0 0 0 1.5px #fff; }
+
+/* card */
+.card { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; background: var(--bg); }
+.chead { background: var(--soft); border-bottom: 1px solid var(--rule); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .92rem; }
+.chead .nm { font-weight: 700; font-size: 1rem; }
+.chead .ds { color: var(--sub); }
+.chead .oc { margin-left: auto; font-weight: 600; font-size: .85rem; }
+.oc.success { color: var(--green); } .oc.failure { color: var(--red); }
+.pill { display: inline-block; border: 1px solid #cfd3d9; border-radius: 999px; padding: 0 8px; font-size: .78rem; font-weight: 600; line-height: 1.6; background: var(--bg); color: var(--ink); }
+
+/* trial panel */
+.pbody { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); }
+.pvid { position: relative; align-self: start; }
+.pvid video { width: 100%; display: block; aspect-ratio: 482 / 480; }
+.badge { position: absolute; display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.93); border-radius: 6px; padding: 2px 7px; font-size: .74rem; font-weight: 600; color: var(--ink); line-height: 1.5; }
+.badge svg { width: 15px; height: 15px; }
+.pvid .b-cam { left: 8px; top: 8px; } .pvid .b-exec { right: 8px; top: 8px; } .pvid .b-stat { left: 8px; bottom: 8px; }
+.badge.ok { color: var(--green); } .badge.bad { color: var(--red); } .badge.fbx { background: var(--purple); color: #fff; }
+.pdec { padding: 12px 14px; min-width: 0; border-left: 1px solid var(--rule); display: flex; flex-direction: column; }
+.dtop { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dtop .t { font-weight: 600; font-size: .95rem; font-variant-numeric: tabular-nums; }
+.dtop button { font: inherit; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #dcdfe3; background: var(--bg); cursor: pointer; color: var(--ink); line-height: 1; }
+.dtop button:disabled { opacity: .3; cursor: default; }
+.vchip { margin-left: auto; font-size: .78rem; font-weight: 700; border-radius: 999px; padding: 2px 10px; display: inline-flex; gap: 5px; align-items: center; }
+.vchip svg { width: 14px; height: 14px; }
+.vchip.acc { background: #e5f4eb; color: var(--green); } .vchip.int { background: #eee9fb; color: var(--purple); }
+.vchip.rej { background: #fbeaea; color: var(--red); } .vchip.none { background: var(--soft); color: var(--sub); }
+.note { background: var(--amber-bg); border-left: 3px solid var(--amber); border-radius: 4px; padding: 5px 10px; font-size: .84rem; margin-bottom: 10px; line-height: 1.45; }
+.pgrid { display: grid; gap: 6px 8px; align-items: start; }
+.pgrid .colh { text-align: center; }
+.rlab { font-size: .78rem; color: var(--sub); line-height: 1.35; padding-top: 2px; }
+.rlab b { color: var(--ink); font-weight: 600; display: block; font-size: .8rem; }
+.rlab .rv { display: flex; align-items: center; gap: 4px; color: var(--ink); font-weight: 600; margin-top: 6px; white-space: nowrap; }
+.rlab .rv > svg { width: 15px; height: 15px; flex: none; }
+.rlab .rule { white-space: nowrap; }
+.dimv { transition: opacity .3s; }
+#dec[data-stage="a"] .v1, #dec:not([data-stage="done"]) .v2 { visibility: hidden; }
+#dec .r2 { transition: opacity .3s; }
+#dec[data-stage="a"] .r2, #dec[data-stage="ab"] .r2, #dec[data-need="0"] .r2 { opacity: .42; }
+#dec[data-stage="a"] .r1 b, #dec[data-stage="b"] .r2 b { color: var(--accent); }
+.rlab .rv.nn { color: var(--sub); font-weight: 500; }
+#dec.thinking .verdict { visibility: hidden; }
+#dec .vchip.wait { display: none; background: #e8effa; color: var(--accent); }
+#dec.thinking .vchip.wait { display: inline-flex; }
+#dec.thinking .vchip.verdict { display: none; }
+.cell .jc, .cell .mn { opacity: 0; transition: opacity .25s; }
+.cell.done .jc, .cell.done .mn { opacity: 1; }
+.cell .prog { fill: #dbe6f8; transition: fill .3s; } .cell.done .prog { fill: #f1f2f4; }
+.badge.think { background: #e8effa; color: var(--accent); }
+.cell { min-width: 0; }
+.clip { position: relative; }
+.pgrid { padding-top: 4px; }
+.clip video { width: 100%; display: block; aspect-ratio: 1; border-radius: 5px; background: #dfe1e4; }
+.clip .b-cloud { left: 4px; top: 4px; padding: 1px 3px; }
+.clip .b-cloud svg { width: 14px; height: 14px; }
+.jc { position: absolute; right: 4px; bottom: 4px; font-size: .72rem; font-weight: 700; border-radius: 5px; padding: 1px 5px; background: rgba(255,255,255,.94); font-variant-numeric: tabular-nums; }
+.jc.ok { color: var(--green); } .jc.bad { color: var(--red); }
+.jc.selok { background: var(--green); color: #fff; } .jc.selfb { background: var(--purple); color: #fff; }
+/* once the decision is made, the plan it selected is outlined and tagged, with one pulse as it is revealed */
+.seltag { position: absolute; left: 50%; top: -9px; transform: translateX(-50%); z-index: 1; display: none; align-items: center; gap: 3px;
+  font-size: .66rem; font-weight: 700; color: #fff; border-radius: 999px; padding: 1px 7px 1px 4px; white-space: nowrap; }
+.seltag svg { width: 11px; height: 11px; }
+.seltag.selok { background: var(--green); } .seltag.selfb { background: var(--purple); } .seltag.selbad { background: var(--red); }
+#dec[data-stage="done"] .cell.sel .seltag { display: inline-flex; }
+#dec[data-stage="done"] .cell.sel .clip video { outline: 3px solid var(--sc); outline-offset: 1px; }
+#dec[data-stage="done"] .cell.sel .clip { animation: selpulse 1s ease-out 1; border-radius: 6px; }
+.cell.selok { --sc: var(--green); } .cell.selfb { --sc: var(--purple); } .cell.selbad { --sc: var(--red); }
+@keyframes selpulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sc) 55%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+@media (prefers-reduced-motion: reduce) { #dec[data-stage="done"] .cell.sel .clip { animation: none; } }
+.trace svg { width: 100%; height: auto; display: block; margin-top: 2px; }
+.vanish, .vanish-l { opacity: 0; transition: opacity .3s; }
+#dec:not(.thinking) .vanish, #dec:not(.thinking) .vanish-l { opacity: 1; }
+.vanish { position: absolute; left: 30.8%; top: 59.4%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px dashed var(--amber); border-radius: 50%; pointer-events: none; }
+.vanish-l { position: absolute; left: 4px; top: 30px; background: var(--amber); color: #fff; font-size: .64rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; pointer-events: none; }
+.empty { margin: auto; color: var(--faint); font-size: .92rem; text-align: center; padding: 20px; }
+.qwrap svg { width: 100%; height: auto; display: block; }
+.pbar { display: flex; align-items: center; gap: 12px; padding: 8px 14px; border-top: 1px solid var(--rule); }
+.pbar { position: relative; }
+.pbar.attn { animation: attn 1.8s ease-in-out infinite; }
+@keyframes attn { 0%, 100% { background: var(--bg); } 50% { background: #e9f0fb; } }
+.coach { position: absolute; left: 8px; bottom: calc(100% + 8px); z-index: 2; background: var(--accent); color: #fff; font-size: .8rem; font-weight: 600;
+  padding: 6px 12px; border-radius: 8px; box-shadow: 0 4px 14px rgba(28, 95, 196, .3); white-space: nowrap; pointer-events: none; animation: bob 1.8s ease-in-out infinite; }
+.coach::after { content: ""; position: absolute; top: 100%; left: 16px; border: 7px solid transparent; border-top-color: var(--accent); }
+.coach[hidden] { display: none; }
+@keyframes bob { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .pbar.attn, .coach { animation: none; } .pbar.attn { background: #e9f0fb; } }
+@media (max-width: 480px) { .coach { white-space: normal; right: 8px; } }
+.play { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #dcdfe3; background: var(--bg); cursor: pointer; flex: none; display: grid; place-items: center; }
+.play svg { width: 14px; height: 14px; }
+.track { flex: 1; min-width: 0; }
+.track svg { display: block; width: 100%; cursor: pointer; user-select: none; touch-action: none; }
+.track svg:focus { outline: none; }
+.track svg.dragging, .track svg.dragging #ph { cursor: grabbing; }
+#ph circle { transition: r .12s; } .track svg:hover #ph circle { r: 6.5; }
+.track svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.clock { font-size: .78rem; color: var(--faint); font-variant-numeric: tabular-nums; flex: none; }
+.speed { font: inherit; font-size: .78rem; border: 1px solid #dcdfe3; border-radius: 999px; background: var(--bg); padding: 3px 8px; color: var(--sub); cursor: pointer; flex: none; }
+
+/* disclosure */
+details.more { margin-top: 10px; font-size: .9rem; }
+details.more > summary { cursor: pointer; color: var(--sub); list-style: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; padding: 2px 0; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before { content: ""; width: 6px; height: 6px; border-right: 1.7px solid currentColor; border-bottom: 1.7px solid currentColor; transform: rotate(-45deg); transition: transform .15s; }
+details.more[open] > summary::before { transform: rotate(45deg); }
+details.more > summary:hover { color: var(--ink); }
+details.more .body { color: var(--sub); padding: 6px 0 4px 14px; max-width: 760px; }
+details.more .body p { margin: 0 0 6px; }
+dl.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 4px 0; }
+dl.kv dt { font-weight: 600; color: var(--ink); } dl.kv dd { margin: 0; }
+
+/* results */
+.rbody { padding: 16px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .8rem; color: var(--sub); margin-bottom: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.bars { display: grid; grid-template-columns: 116px 1fr 64px; gap: 10px 12px; align-items: center; font-size: .88rem; }
+.bars .lab { font-weight: 600; white-space: nowrap; }
+.bar { display: flex; height: 24px; border-radius: 5px; overflow: hidden; background: var(--soft); }
+.bar span { display: flex; align-items: center; justify-content: center; color: #fff; font-size: .74rem; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.bars .val { font-variant-numeric: tabular-nums; color: var(--sub); font-size: .82rem; }
+.bars .na { color: var(--faint); font-size: .82rem; grid-column: 2 / span 2; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { color: var(--sub); font-weight: 600; font-size: .8rem; }
+tbody tr:last-child td { border-bottom: 0; }
+.tscroll { overflow-x: auto; }
+.rview[hidden] { display: none; }
+
+/* details list */
+.acc { border-top: 1px solid var(--rule); }
+.acc > details { border-bottom: 1px solid var(--rule); }
+.acc summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 170px 1fr 14px; gap: 12px; padding: 11px 4px; align-items: baseline; border-radius: 6px; }
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary:hover { background: var(--soft); }
+.acc summary .k { font-weight: 600; }
+.acc summary .v { color: var(--sub); font-size: .92rem; }
+.acc summary::after { content: ""; width: 7px; height: 7px; border-right: 1.8px solid var(--faint); border-bottom: 1.8px solid var(--faint); transform: rotate(45deg); justify-self: end; align-self: center; transition: transform .15s; }
+.acc details[open] > summary::after { transform: rotate(225deg); }
+.acc .body { padding: 0 4px 14px 186px; color: var(--sub); font-size: .9rem; }
+.acc .body ul { margin: 0; padding-left: 18px; } .acc .body li { margin: 2px 0; }
+.acc .body table { margin: 8px 0 4px; font-size: .86rem; }
+footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: var(--faint); font-size: .82rem; border-top: 1px solid var(--rule); }
+
+@media (max-width: 820px) {
+  .pbody { display: flex; flex-direction: column; }
+  .pvid { max-width: 420px; width: 100%; margin: 0 auto; }
+  .pdec { border-left: 0; border-top: 1px solid var(--rule); order: 3; }
+  .pbar { order: 2; }
+  .acc summary { grid-template-columns: 1fr 14px; } .acc summary .v { grid-column: 1; }
+  .acc .body { padding-left: 4px; }
+}
+@media (max-width: 480px) {
+  .pvid { max-width: 280px; }
+  #panel .chead { display: none; }   /* the chip already names the approach and its outcome */
+  .vanish-l { display: none; }   /* the note above names it; the circle marks where */
+  .pdec { padding: 10px 10px; }
+  .pgrid { grid-template-columns: 76px repeat(var(--m), minmax(0, 88px)) !important; }
+  .rlab .rule { white-space: normal; }
+  .rlab b { font-size: .74rem; } .rlab { font-size: .72rem; }
+  .note { font-size: .8rem; }
+  .bars { grid-template-columns: 88px 1fr 46px; gap: 8px; }
+  .bars .lab { font-size: .8rem; }
+  .topnav .in { gap: 18px; }
+}
 </style>
 </head>
 <body>
+<nav class="topnav" aria-label="Sections"><div class="in">
+  <a href="#top">Overview</a>
+  <a href="#simulation">Simulation</a>
+  <span class="grp"><a class="parent" href="#hardware">Hardware</a><span class="subs" aria-label="Hardware subsections">
+    <a class="minor" href="#trials">Trials</a><a class="minor" href="#outcomes">Outcomes</a><a class="minor" href="#detection">Detection</a><a class="minor" href="#details">Details</a>
+  </span></span>
+</div></nav>
+
 <main>
+<div class="hero" id="top">
   <h1>World Model Predictive Safety Filtering</h1>
-  <p class="byline">Supplementary material for a paper under double-blind review. Authors anonymized.</p>
-  <nav>
-    <a href="#labels">Label validation</a>
-    <a href="#metrics">Metric definitions</a>
-    <a href="#figures">Additional figures</a>
-    <a href="#videos">Trial videos</a>
-  </nav>
+  <p class="by">Anonymous authors · under double-blind review</p>
+  <div class="ph video">Accompanying video · coming soon</div>
+</div>
 
-  <h2 id="labels">Label validation</h2>
-  <p class="placeholder">Agreement between the vision-language labeler and human annotation on the recorded rollouts and on the hardware trials. Table to be added.</p>
+<section class="first" id="overview">
+  <h2>Overview</h2>
+  <div class="ph">Abstract and method overview · to be added</div>
+</section>
 
-  <h2 id="metrics">Metric definitions</h2>
-  <p class="placeholder">Full definitions of the closed-loop and hazard-detection metrics reported in the paper. Text to be added.</p>
+<section id="simulation">
+  <h2>Simulation</h2>
+  <div class="ph">Simulation results · to be added</div>
+</section>
 
-  <h2 id="figures">Additional figures</h2>
-  <p class="placeholder">Full-width qualitative figures and interactive versions of the paper's tables. To be added.</p>
+<section id="hardware">
+  <h2>Hardware</h2>
+  <p class="subt">A Franka arm drops an empty bottle into a bin; knocking over the full bottle is a failure.</p>
 
-  <h2 id="videos">Trial videos</h2>
-  <p class="placeholder">Recorded hardware trials with the filter's imagined plans. To be added.</p>
+  <h3 id="trials">One layout, four approaches</h3>
+  <p class="subt">Each approach's trial from the same start, with every decision its filter made.</p>
+  <div class="chips" role="tablist" id="tabs"></div>
+  <div class="card" id="panel">
+    <div class="chead" id="phead"></div>
+    <div class="pbody">
+      <div class="pvid">
+        <video id="real" muted playsinline preload="auto"></video>
+        <span class="badge b-cam"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cam"/></svg>physical</span>
+        <span class="badge b-exec" id="bexec"></span>
+        <span class="badge b-stat" id="bstat"></span>
+      </div>
+      <div class="pdec" id="dec"></div>
+      <div class="pbar attn" id="pbar" style="grid-column: 1 / -1">
+        <div class="coach" id="coach" role="note">Press play · drag the timeline to scrub · change the speed</div>
+        <button class="play" id="play" type="button" aria-label="Play or pause"><svg viewBox="0 0 24 24" id="playic"><path d="M7 4.5v15l12-7.5z" fill="#1d1f23"/></svg></button>
+        <div class="track" id="track"></div>
+        <button class="speed" id="speed" type="button" aria-label="Playback speed">1×</button>
+        <span class="clock" id="clock"></span>
+      </div>
+    </div>
+  </div>
+  <details class="more">
+    <summary>How to read</summary>
+    <div class="body">
+      <p>The recording tiles the three cameras as the models see them: top (left), wrist (top right), side (bottom right).</p>
+      <p>The right side shows the decision cycle behind the chunk being executed. Row 1 imagines the nominal chunk followed by each fallback; row 2 imagines each fallback alone. Each plan scores its least safe imagined step, <i>J</i>, circled on its margin trace; the grey line marks where the nominal chunk ends.</p>
+      <p>For the rollout filters, each decision cycle plays its imagination while the recording runs through the inference pause and then holds; the chunk then executes. Step 1 imagines the nominal chunk followed by each fallback; only if the chunk is rejected does step 2 imagine each fallback alone. On the bar, <span style="color:#6a8fd0">blue</span> marks step 1, <span style="color:#8f73e0">lavender</span> step 2, grey an executed nominal chunk, and purple a fallback. Drag along the bar to scrub. Markers show every decision cycle, colored by its verdict: <span style="color:var(--green)">accepted</span>, <span style="color:var(--purple)">intervened</span>, or <span style="color:var(--red)">rejected with no safer fallback</span>; select one to jump to it.</p>
+      <p>Imagined plans are rendered by a decoder that no decision uses.</p>
+    </div>
+  </details>
 
-  <footer>This page contains no author-identifying information. It will be updated during the review period. Last updated: 2026-09-15.</footer>
+  <h3 id="outcomes">Closed-loop outcomes</h3>
+  <p class="subt">27 trials per approach.</p>
+  <div class="chips" role="tablist" id="rtabs">
+    <button class="chip" role="tab" data-v="oc" aria-selected="true">Outcomes</button>
+    <button class="chip" role="tab" data-v="iv" aria-selected="false">Interventions</button>
+    <button class="chip" role="tab" data-v="cost" aria-selected="false">Cost</button>
+  </div>
+  <div class="card"><div class="rbody">
+    <div class="rview" id="v-oc">
+      <div class="legend"><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--red)"></i>failure</span><span><i style="background:var(--grey)"></i>timeout</span></div>
+      <div class="bars">
+        <span class="lab"><span class="sc">Rollout-H</span>†</span><div class="bar"><span style="width:66.7%;background:var(--green)">66.7</span><span style="width:25.9%;background:var(--red)">25.9</span><span style="width:7.4%;background:var(--grey)"></span></div><span class="val">7.4</span>
+        <span class="lab"><span class="sc">Rollout-L</span>†</span><div class="bar"><span style="width:48.1%;background:var(--green)">48.1</span><span style="width:44.4%;background:var(--red)">44.4</span><span style="width:7.4%;background:var(--grey)"></span></div><span class="val">7.4</span>
+        <span class="lab"><span class="sc">Value</span></span><div class="bar"><span style="width:44.4%;background:var(--green)">44.4</span><span style="width:55.6%;background:var(--red)">55.6</span></div><span class="val">0.0</span>
+        <span class="lab"><span class="sc">Unfiltered</span></span><div class="bar"><span style="width:40.7%;background:var(--green)">40.7</span><span style="width:51.9%;background:var(--red)">51.9</span><span style="width:7.4%;background:var(--grey)"></span></div><span class="val">7.4</span>
+      </div>
+      <p class="subt" style="font-size:.8rem;margin:10px 0 0">Shares of trials (%); timeout at right. † ours.</p>
+    </div>
+    <div class="rview" id="v-iv" hidden>
+      <div class="legend"><span><i style="background:#c3b5f2"></i><span class="fb">Left</span></span><span><i style="background:#8f73e0"></i><span class="fb">Right</span></span><span><i style="background:#4b2fa8"></i><span class="fb">Learned</span></span></div>
+      <div class="bars">
+        <span class="lab"><span class="sc">Rollout-H</span>†</span><div class="bar" style="background:none"><span style="width:40%;background:#c3b5f2;color:#2a1d63">2.0</span><span style="width:16%;background:#8f73e0">0.8</span></div><span class="val">2.8</span>
+        <span class="lab"><span class="sc">Rollout-L</span>†</span><div class="bar" style="background:none"><span style="width:52%;background:#4b2fa8">2.6</span></div><span class="val">2.6</span>
+        <span class="lab"><span class="sc">Value</span></span><span class="na">no intervention before any failure</span>
+        <span class="lab"><span class="sc">Unfiltered</span></span><span class="na">no filter</span>
+      </div>
+      <p class="subt" style="font-size:.8rem;margin:10px 0 0">Share of decision cycles before any failure that execute each fallback (%); axis to 5%.</p>
+    </div>
+    <div class="rview" id="v-cost" hidden>
+      <div class="tscroll"><table>
+        <thead><tr><th></th><th>Filter compute (s)</th><th>Imagined steps</th><th>Training (GPU-h)</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sc">Rollout-H</span>†</td><td>0.37 ± 0.11</td><td>160</td><td>11.68 + 1.00</td></tr>
+          <tr><td><span class="sc">Rollout-L</span>†</td><td>0.59 ± 0.17</td><td>240</td><td>11.68 + 1.17</td></tr>
+          <tr><td><span class="sc">Value</span></td><td>0.04 ± 0.06</td><td>0</td><td>11.68 + 0.17</td></tr>
+          <tr><td><span class="sc">Unfiltered</span></td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table></div>
+      <p class="subt" style="font-size:.8rem;margin:10px 0 0">Per decision cycle; training is shared base + approach-specific.</p>
+    </div>
+  </div></div>
+  <details class="more">
+    <summary>Definitions</summary>
+    <div class="body"><dl class="kv">
+      <dt>Outcome</dt><dd>Success: the empty bottle is in the bin. Failure: the full bottle is knocked over. Timeout: the operator stops a trial that can no longer succeed, the arm stops on a fault, or the 20-chunk limit is reached.</dd>
+      <dt>Intervention</dt><dd>Over every decision cycle of success and timeout trials and those strictly before the fall in failure trials.</dd>
+      <dt>Filter compute</dt><dd>Mean ± SD of image encoding, prediction, classification, and calls to <span class="fb">Learned</span> or <i>Q</i>; excludes the nominal policy and the decoder.</dd>
+      <dt>Imagined steps</dt><dd>Each fallback enters twice: nominal then fallback (48 steps) and fallback alone (32 steps).</dd>
+      <dt>Training</dt><dd>RTX 5090 GPU-hours through the selected checkpoints. Base: dynamics model 11.67, failure classifier 0.01. Additional: decoder 1.00; training of <span class="fb">Learned</span>, which also yields <i>Q</i>, 0.17.</dd>
+    </dl></div>
+  </details>
+
+  <h3 id="detection">Failure detection</h3>
+  <p class="subt">Every monitor scored offline on all 108 recordings.</p>
+  <div class="card"><div class="tscroll"><table>
+    <thead><tr><th>Monitor</th><th>Detect (%) ↑</th><th>Lead (s) ↑</th><th>False alarms (%) ↓</th><th>AUROC ↑</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sc">Rollout-H</span>†</td><td><b>52.1</b></td><td><b>0.60</b></td><td>2.4</td><td><b>0.92</b></td></tr>
+      <tr><td><span class="sc">Rollout-L</span>†</td><td>37.5</td><td>0.22</td><td>0.8</td><td>0.91</td></tr>
+      <tr><td><span class="sc">Value</span></td><td>0.0</td><td>—</td><td>0.0</td><td>0.83</td></tr>
+    </tbody>
+  </table></div></div>
+  <details class="more">
+    <summary>Definitions</summary>
+    <div class="body"><dl class="kv">
+      <dt>Detection</dt><dd><i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="task"><use href="#i-task"/></svg></sup> &lt; 0 for the rollout filters, <i>Q</i> &lt; 0 for <span class="sc">Value</span>.</dd>
+      <dt>Detect</dt><dd>Share of failure trials whose critical decision, the last decision cycle before the fall, is detected.</dd>
+      <dt>Lead</dt><dd>Mean motion time from the first detection before the fall to the fall; pauses between chunks do not count.</dd>
+      <dt>False alarms</dt><dd>Share of the other decision cycles detected: earlier ones in failure trials, and all in success and timeout trials.</dd>
+      <dt>AUROC</dt><dd>Of the monitor's score, critical versus other decision cycles.</dd>
+      <dt>Scope</dt><dd>Trials of all four approaches pooled; decision cycles with an intervention excluded.</dd>
+    </dl></div>
+  </details>
+
+  <h3 id="details">Training and filter construction</h3>
+  <div class="acc">
+    <details><summary><span class="k">Data</span><span class="v">100 demonstrations, 191 policy executions</span></summary><div class="body"><ul>
+      <li>100 teleoperated safe demonstrations, 19 min at 15 Hz; the nominal policy trains on 90 and validates on 10.</li>
+      <li>World model: raw sensor and actuator data traces from the 90 demonstrations and 191 nominal-policy executions (50,925 frames); 10 demonstrations and 25 executions validate, 25 more executions are a held-out test set.</li>
+      <li>41% of the executions contain one exploration segment: 32 steps (2.1 s) of pink-noise motion around the last commanded target (35 mm, 5°, a gripper toggle in half), starting at a random chunk boundary among the first ten.</li>
+      <li>Observation: top, wrist, and side cameras (640 × 480) cropped and tiled into one 224 × 224 image, as in the recordings above.</li>
+      <li>Action: 10-D at 15 Hz (end-effector position, 6-D orientation, gripper), executed in 16-step chunks; the arm holds its last target while the next chunk is generated and checked.</li>
+    </ul></div></details>
+    <details><summary><span class="k">Nominal policy</span><span class="v">Cosmos 3 Edge, fine-tuned</span></summary><div class="body"><ul>
+      <li>Policy variant of Cosmos 3 Edge with new action heads; 3,000 iterations at batch 256 on 8 H100 GPUs (12.7 GPU-h).</li>
+      <li>Inputs: the composite image, end-effector pose and gripper state, task instruction. Outputs: 32 actions with frames; the first 16 are the proposed chunk.</li>
+    </ul></div></details>
+    <details><summary><span class="k">World model</span><span class="v">DINOv3 latents, transformer dynamics</span></summary><div class="body"><ul>
+      <li>Encoder: frozen DINOv3 ViT-L/16; each image becomes 14 × 14 tokens of dimension 1024.</li>
+      <li>Dynamics model: 6 layers, 16 heads, causal over a 5-step latent context; each action is embedded and appended to every token; predicts the change from the last latent.</li>
+      <li>Training: latent mean squared error over 16-, 32-, and 48-step autoregressive predictions, discounted by 0.95 per step; 33,231 updates. Validation error 0.0094 versus 0.0196 for repeating the last latent.</li>
+      <li>Decoder: 4-layer transformer trained on pixel error; renders imagined plans for inspection only.</li>
+    </ul></div></details>
+    <details><summary><span class="k">Failure classifier</span><span class="v">margin on a 5-step latent window</span></summary><div class="body"><ul>
+      <li>0.3 M-parameter convolutional head on the last 5 latent observations; the margin ℓ is the negative failure logit.</li>
+      <li>Binary cross-entropy on the labels below (failure from the onset on), input noise 0.05; per-frame AUROC 0.999 on physical validation frames.</li>
+      <li>Labels: Qwen3.8-27B, in two calls on top and side frame sheets, marks the first frame at which the full bottle lies flat.</li>
+    </ul>
+    <table>
+      <thead><tr><th>Against human labels</th><th>Episodes</th><th>Agreement (%)</th><th>κ</th><th>Onset offset (s)</th></tr></thead>
+      <tbody>
+        <tr><td>Qwen3.8-27B labels</td><td>110 executions</td><td>96.4</td><td>0.92</td><td>−0.20 ± 0.17</td></tr>
+        <tr><td>Failure classifier</td><td>110 executions</td><td>97.3</td><td>0.94</td><td>−0.18 ± 0.17</td></tr>
+        <tr><td>Failure classifier</td><td>108 hardware trials</td><td>97.2</td><td>0.94</td><td>−0.06 ± 0.23</td></tr>
+      </tbody>
+    </table>
+    Onset offset: predicted minus human, over episodes both label as failures. The classifier labels an episode a failure if any physical frame scores unsafe. 55% of the 110 executions are in its training data.</div></details>
+    <details><summary><span class="k">Fallbacks</span><span class="v"><span class="fb">Left</span>, <span class="fb">Right</span>, <span class="fb">Learned</span></span></summary><div class="body"><ul>
+      <li><span class="fb">Left</span>, <span class="fb">Right</span>: 100 mm sideways in 16 steps, orientation and gripper held, then a 16-step hold.</li>
+      <li><span class="fb">Learned</span>: 16 increments of at most 25 mm and 0.1 rad from the last target, gripper held, then a 16-step hold. Soft actor-critic in the world model's imagination on the discounted safety Bellman backup, with the failure classifier defining the avoid set; 256 parallel imagined episodes, selected after 100 training steps.</li>
+      <li>Critic <i>Q</i>: the minimum of the twin critics from the same training, on the nominal chunk followed by <span class="fb">Learned</span>.</li>
+    </ul></div></details>
+    <details><summary><span class="k">Filter</span><span class="v">accept, else intervene</span></summary><div class="body"><ul>
+      <li>Each plan scores its least safe imagined step: <i>J</i>(<i>p</i>) = min<sub><i>j</i></sub> ℓ<sub><i>t</i>+<i>j</i></sub>.</li>
+      <li>Accept the nominal chunk if <i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="task"><use href="#i-task"/></svg></sup>, the best score over nominal-then-fallback plans, is ≥ 0; otherwise execute the best fallback-only plan if its score <i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="safe"><use href="#i-safe"/></svg></sup> is higher.</li>
+      <li><span class="sc">Value</span> accepts when <i>Q</i> ≥ 0 and otherwise executes <span class="fb">Learned</span>.</li>
+      <li>Filter and nominal policy share one RTX 5090.</li>
+    </ul></div></details>
+  </div>
+</section>
 </main>
+<footer>No author-identifying information. Last updated 2026-09-23.</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="#1d1f23" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.6" fill="none" stroke="#1d1f23" stroke-width="1.8"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7.2 15.5a3.6 3.6 0 0 1-.4-7.2 4.6 4.6 0 0 1 8.7-1 3.9 3.9 0 0 1 1.9 7.4 3 3 0 0 1-2.9.8H7.2z" fill="#fff" stroke="#1d1f23" stroke-width="1.7" stroke-linejoin="round"/><circle cx="7.4" cy="18.6" r="1.35" fill="#fff" stroke="#1d1f23" stroke-width="1.4"/><circle cx="4.6" cy="21" r=".9" fill="#fff" stroke="#1d1f23" stroke-width="1.2"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1f9d57"/><path d="M7.2 12.4l3.2 3.2 6.4-6.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bad" viewBox="0 0 24 24"><path d="M12 2.6l10 17.6H2z" fill="#d2443c" stroke="#d2443c" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 9v5.2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.4" fill="#fff"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.2l8 3v6.1c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5V5.2z" fill="#7454d4"/><path d="M8.2 12.2l2.7 2.7 5-5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c4c8ce"/><path d="M7.5 12h9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-task" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="#1d1f23" stroke-width="2.4"/><path d="M7.5 12.3l3 3 6-6.4" fill="none" stroke="#1d1f23" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-safe" viewBox="0 0 24 24"><path d="M12 1.8l8.6 3.2v6.4c0 5.3-3.6 9.3-8.6 11-5-1.7-8.6-5.7-8.6-11V5z" fill="#1d1f23"/></symbol>
+</defs></svg>
+
+<script>
+(() => {
+  const FPS = 15, Y0 = -20, Y1 = 22;     // one margin axis for every trace, so plans compare at a glance
+  // Each decision cycle is imagined in the filter's order: step 1, the nominal chunk followed by each fallback (48 steps);
+  // only if the chunk is rejected, step 2, each fallback alone (32 steps). A beat on the verdict precedes the chunk.
+  const A = 48 / FPS, B = 32 / FPS, BEAT = 0.5, HOLD = 0.7;
+  const step2At = A + BEAT;                                     // imagination time (s at 1x) at which step 2 starts
+  const thinkEnd = (d) => (d.certified ? A : step2At + B);      // ... at which the verdict is known
+  const dur = (d) => thinkEnd(d) + HOLD;
+  const $ = (id) => document.getElementById(id);
+  const icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+  const sup = (n, l) => `<i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="${l}"><use href="#i-${n}"/></svg></sup>`;
+  const JT = sup('task', 'task'), JS = sup('safe', 'safe');
+  const fmt = (x) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(1);
+  const cap = (s) => s[0].toUpperCase() + s.slice(1);
+  const DESC = {
+    U: 'nominal policy alone',
+    V: 'value-based filter · critic <i>Q</i> · fallback <span class="pill">Learned</span>',
+    L: 'our filter · fallbacks <span class="pill">Left</span> <span class="pill">Right</span> <span class="pill">Learned</span>',
+    H: 'our filter · fallbacks <span class="pill">Left</span> <span class="pill">Right</span>',
+  };
+  // Notes on key decision cycles, keyed "approach:decision cycle".
+  const NOTES = {
+    'H:5': 'Both nominal plans topple the full bottle; <span class="fb">Left</span> keeps it upright.',
+    'L:5': 'Under <span class="fb">Learned</span>, the imagined full bottle vanishes, so the plan scores safe; we hypothesize reward hacking.',
+    'L:6': 'Every plan scores unsafe; the intervention comes after the fall.',
+    'V:6': '<i>Q</i> stays positive right up to the fall.',
+    'V:post': 'After the fall, <i>Q</i> drops to −10.0, too late to intervene.',
+  };
+  const COL = { acc: '#1f9d57', int: '#7454d4', rej: '#d2443c', none: '#c4c8ce' };
+  const verdict = (t, d) => t.k === 'U' ? 'none' : t.k === 'V' ? (d.q >= 0 ? 'acc' : 'int')
+    : d.certified ? 'acc' : d.chosen !== 'nominal' ? 'int' : 'rej';
+
+  const clipUrl = {};
+  // tau: playback time at 1x, the one clock everything follows. For the rollout filters it includes the
+  // imagination at every decision cycle, during which the recording runs through the inference pause and then holds.
+  let T = [], cur = null, dk = -1, raf = 0, rate = 1, last = 0, tau = 0, playing = false, imgT = 0, phase = 'exec';
+  const video = $('real');
+  const imagines = (t = cur) => t.k === 'L' || t.k === 'H';
+
+  fetch('assets/trials.json').then((r) => r.json()).then((d) => {
+    T = d.trials;
+    T.forEach(schedule);
+    $('tabs').innerHTML = T.map((t) => `<button class="chip" role="tab" data-k="${t.k}" aria-selected="false">
+      <span class="dot ${t.outcome}"></span><span><span class="sc">${t.name}</span>${t.ours ? '†' : ''}</span></button>`).join('');
+    $('tabs').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => select(b.dataset.k)));
+    select('H');
+  });
+
+  // Playback schedule: segments mapping playback time to recording frames (a hold has f0 == f1),
+  // and the playback time at which each decision cycle begins.
+  function schedule(t) {
+    const segs = [], lastF = t.frames - 1, ds = t.decisions;
+    let x = 0;
+    t.tau = [];
+    const seg = (f0, f1, dur) => { if (dur > 0) segs.push({ f0, f1, t0: x, t1: x + dur }); x += dur; };
+    ds.forEach((d, i) => {
+      const s0 = Math.min(d.span[0], lastF), nx = i + 1 < ds.length ? ds[i + 1].frame : lastF;
+      t.tau[i] = x;
+      if (imagines(t)) {
+        const P = (s0 - d.frame) / FPS;
+        seg(d.frame, s0, P);
+        seg(s0, s0, Math.max(0, dur(d) - P));
+        seg(s0, nx, (nx - s0) / FPS);
+      } else seg(d.frame, nx, (nx - d.frame) / FPS);
+    });
+    t.segs = segs; t.total = x;
+  }
+  const frameAt = (x) => {
+    for (const s of cur.segs) if (x <= s.t1) return s.f0 + (s.f1 - s.f0) * Math.max(0, x - s.t0) / (s.t1 - s.t0);
+    return cur.frames - 1;
+  };
+  const tauOf = (f) => {
+    for (const s of cur.segs) if (s.f1 > s.f0 && f >= s.f0 && f <= s.f1) return s.t0 + (s.t1 - s.t0) * (f - s.f0) / (s.f1 - s.f0);
+    return cur.total;
+  };
+  // Value's last step is the critic's value after the fall, shown once the recording has ended
+  const decisionAt = (x) => {
+    let i = 0; cur.tau.forEach((t0, j) => { if (t0 <= x + 1e-6) i = j; });
+    return cur.post && x >= cur.total - 1e-3 ? cur.decisions.length : i;
+  };
+  const steps = () => cur.decisions.length + (cur.post ? 1 : 0);
+
+  // whole files as blobs: seeking works on any static host, and plans start together
+  const blobUrl = (u) => (clipUrl[u] ||= fetch(u).then((r) => r.blob()).then((b) => URL.createObjectURL(b)));
+
+  function select(k) {
+    pause();
+    cur = T.find((t) => t.k === k);
+    $('tabs').querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.k === k)));
+    $('phead').innerHTML = `<span class="nm"><span class="sc">${cur.name}</span>${cur.ours ? '†' : ''}</span><span class="ds">${DESC[k]}</span>
+      <span class="oc ${cur.outcome}">${cur.outcome}</span>`;
+    blobUrl(`assets/real-${k}.mp4`).then((u) => { if (cur.k === k) { video.src = u; video.playbackRate = rate; } });
+    if (imagines()) cur.decisions.forEach((d) => d.plans.forEach((p) => blobUrl(p.clip)));
+    dk = -1; tau = 0;
+    drawTrack(); render(true);
+  }
+  video.addEventListener('loadedmetadata', () => syncVideo(true));
+
+  // ---- the clock
+  function play() {
+    if (tau >= cur.total - 1e-3) tau = 0;
+    playing = true; last = performance.now();
+    coached();
+    render(true);
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+  }
+  function pause() {
+    playing = false; cancelAnimationFrame(raf);
+    video.pause(); document.querySelectorAll('#dec video').forEach((v) => v.pause());
+    if (cur) paint();
+  }
+  function tick(now) {
+    if (!playing) return;
+    tau += Math.min(0.1, (now - last) / 1000) * rate; last = now;
+    if (tau >= cur.total) { tau = cur.total; render(); pause(); return; }
+    render();
+    raf = requestAnimationFrame(tick);
+  }
+  $('play').addEventListener('click', () => (playing ? pause() : play()));
+  // the controls bar pulses with a note until the viewer first plays, scrubs, or changes the speed
+  function coached() { $('coach').hidden = true; $('pbar').classList.remove('attn'); }
+  $('speed').addEventListener('click', () => {
+    coached();
+    rate = rate === 1 ? 2 : rate === 2 ? 0.5 : 1;
+    $('speed').textContent = `${rate}×`;
+    video.playbackRate = rate;
+    document.querySelectorAll('#dec video').forEach((v) => { v.playbackRate = rate; });
+  });
+  // jump to a decision cycle: replay its imagination while playing, show it complete while paused
+  function jump(i) { tau = i >= cur.decisions.length ? cur.total : cur.tau[i] + (playing || !imagines() ? 0 : dur(cur.decisions[i]) - 0.01); render(true); }
+
+  // ---- state at tau, and the media that follow it
+  function render(force) {
+    const i = decisionAt(tau);
+    imgT = imagines() ? tau - cur.tau[i] : 0;
+    phase = imagines() && imgT < dur(cur.decisions[i]) ? 'imagine' : 'exec';
+    if (i !== dk) { dk = i; drawDecision(); markTrack(); force = true; }
+    syncVideo(force);
+    syncPlans(force);
+    paint();
+  }
+  function syncVideo(force) {
+    if (!cur || video.readyState < 1) return;
+    const f = frameAt(tau), target = (f + 0.5) / FPS;
+    const seg = cur.segs.find((s) => tau <= s.t1) || cur.segs[cur.segs.length - 1];
+    const moving = playing && seg.f1 > seg.f0 && f < cur.frames - 1;
+    if (moving) {
+      video.playbackRate = rate;
+      if (video.paused) video.play().catch(() => {});
+      if (force || Math.abs(video.currentTime - target) > 0.15) video.currentTime = target;
+    } else {
+      if (!video.paused) video.pause();
+      if (force || Math.abs(video.currentTime - target) > 0.04) video.currentTime = target;
+    }
+  }
+  function syncPlans(force) {
+    if (!imagines()) return;
+    document.querySelectorAll('#dec video').forEach((v) => syncPlan(v, force));
+  }
+  // imagination time within a plan's own step; negative before its step starts, null when its step is not needed
+  function ownClock(row) {
+    if (row !== '2') return imgT;
+    return cur.decisions[dk].certified ? null : imgT - step2At;
+  }
+  function syncPlan(v, force) {
+    if (v.readyState < 1) return;
+    const own = ownClock(v.dataset.row), len = (+v.dataset.len) / FPS, t = own == null ? 0 : Math.max(0, Math.min(own, len - 0.04));
+    if (playing && own != null && own >= 0 && own < len) {
+      v.playbackRate = rate;
+      if (v.paused) v.play().catch(() => {});
+      if (force || Math.abs(v.currentTime - t) > 0.15) v.currentTime = t;
+    } else {
+      if (!v.paused) v.pause();
+      if (force || Math.abs(v.currentTime - t) > 0.04) v.currentTime = t;
+    }
+  }
+
+  function paint() {
+    const f = Math.round(frameAt(tau));
+    $('clock').textContent = `${tau.toFixed(1)} / ${cur.total.toFixed(1)} s`;
+    $('playic').innerHTML = playing ? '<path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z" fill="#1d1f23"/>' : '<path d="M7 4.5v15l12-7.5z" fill="#1d1f23"/>';
+    const fallen = cur.onset != null && f >= cur.onset, done = cur.outcome === 'success' && tau >= cur.total - 0.05;
+    $('bstat').className = 'badge b-stat ' + (fallen ? 'bad' : 'ok');
+    $('bstat').innerHTML = fallen ? `${icon('bad')}full bottle knocked over` : done ? `${icon('ok')}empty bottle in the bin` : `${icon('ok')}full bottle upright`;
+    const d = cur.decisions[Math.min(dk, cur.decisions.length - 1)], thinking = imagines() && imgT < thinkEnd(d);
+    // a: step 1 imagining; ab: step 1 rejected, step 2 about to start; b: step 2 imagining; done: verdict known
+    const stage = !thinking ? 'done' : imgT < A ? 'a' : imgT < step2At ? 'ab' : 'b';
+    $('dec').dataset.stage = stage; $('dec').dataset.need = d.certified === false ? '1' : '0';
+    const running = f >= d.span[0] && f < d.span[1] && phase === 'exec', fb = d.action !== 'nominal';
+    $('bexec').className = 'badge b-exec' + (thinking ? ' think' : running && fb ? ' fbx' : '');
+    $('bexec').innerHTML = thinking ? 'imagining plans…' : !running ? 'holding' : fb ? `executing ${cap(d.action)}` : 'executing nominal chunk';
+    const x = X(tau);
+    $('ph').setAttribute('transform', `translate(${x} 0)`);
+    $('dec').classList.toggle('thinking', thinking);
+    if (imagines()) paintPlans();
+  }
+
+  function paintPlans() {
+    document.querySelectorAll('#dec .cell').forEach((c) => {
+      const own = ownClock(c.dataset.row), k = own == null ? -1 : own * FPS;
+      const len = +c.dataset.len, step = Math.max(0, Math.min(len - 1, k)), end = k >= len - 1;
+      const xs = k < 0 ? 0 : 1 + 118 * step / 47;
+      c.querySelector('.cpr').setAttribute('width', xs);
+      c.querySelector('.prog').setAttribute('width', Math.max(0, xs - 1));
+      const cu = c.querySelector('.cur');
+      cu.setAttribute('cx', xs); cu.setAttribute('cy', c._y(step)); cu.style.opacity = k >= 0 && !end ? 1 : 0;
+      c.classList.toggle('done', end);
+    });
+  }
+
+  // ---- playback bar, on the playback clock: imagination (blue) and executed chunks (grey, purple for a fallback),
+  // decision markers colored by verdict, the fall, and a draggable playhead
+  let TW = 600;
+  const PL = 14, PR = 14, H = 54;
+  const X = (x) => PL + (TW - PL - PR) * x / cur.total;
+  function drawTrack() {
+    TW = Math.max(200, Math.round($('track').clientWidth || 600));
+    let s = `<svg viewBox="0 0 ${TW} ${H}" height="${H}" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="${cur.total.toFixed(1)}" tabindex="0">`;
+    s += `<rect x="${PL}" y="13" width="${TW - PL - PR}" height="2" rx="1" fill="#e6e8eb"/>`;
+    cur.decisions.forEach((d, i) => {
+      if (imagines()) {
+        const t0 = cur.tau[i], band = (a, b, fill) => `<rect x="${X(a)}" y="9" width="${X(b) - X(a)}" height="10" rx="3" fill="${fill}"/>`;
+        s += band(t0, t0 + (d.certified ? dur(d) : step2At), '#cfddf6');
+        if (!d.certified) s += band(t0 + step2At, t0 + dur(d), '#ddd3f7');
+      }
+      const a = tauOf(d.span[0]), b = tauOf(Math.min(d.span[1], cur.frames - 1)), fb = d.action !== 'nominal';
+      s += `<rect x="${X(a)}" y="7" width="${Math.max(2, X(b) - X(a))}" height="14" rx="3" fill="${fb ? '#7454d4' : '#c4c8ce'}"/>`;
+    });
+    cur.decisions.forEach((d, j) => {
+      const cx = X(cur.tau[j]);
+      s += `<g class="mk" data-i="${j}" style="cursor:pointer"><circle cx="${cx}" cy="40" r="9" fill="#fff" stroke="${COL[verdict(cur, d)]}" stroke-width="2"/>
+        <text x="${cx}" y="44" font-size="10.5" font-weight="600" text-anchor="middle" fill="#1d1f23">${d.i}</text></g>`;
+    });
+    if (cur.post) {
+      const px = X(cur.total);
+      s += `<g class="mk" data-i="${cur.decisions.length}"><rect x="${px - 62}" y="31" width="70" height="18" rx="9" fill="#fff" stroke="#d2443c" stroke-width="2"/>
+        <text x="${px - 27}" y="44" font-size="10.5" font-weight="600" text-anchor="middle" fill="#1d1f23">after fall</text></g>`;
+    }
+    if (cur.onset != null) {
+      const ox = X(tauOf(cur.onset));
+      s += `<line x1="${ox}" x2="${ox}" y1="2" y2="26" stroke="#d2443c" stroke-width="2"/><text x="${ox - 4}" y="9" font-size="10" text-anchor="end" fill="#d2443c" font-weight="600">fall</text>`;
+    }
+    s += `<g id="ph" style="cursor:grab"><line x1="0" x2="0" y1="1" y2="28" stroke="#1d1f23" stroke-width="1.8"/><circle cx="0" cy="14" r="5" fill="#fff" stroke="#1d1f23" stroke-width="1.8"/></g></svg>`;
+    $('track').innerHTML = s;
+    const svg = $('track').querySelector('svg');
+    const toTau = (ev) => { const r = svg.getBoundingClientRect(); return Math.max(0, Math.min(cur.total, ((ev.clientX - r.left) * TW / r.width - PL) / (TW - PL - PR) * cur.total)); };
+    // drag anywhere on the bar to scrub; the pointer is followed on the window so the drag survives leaving the bar
+    let resume = false;
+    const move = (ev) => { ev.preventDefault(); tau = toTau(ev); render(true); };
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      svg.classList.remove('dragging');
+      if (resume) play();
+    };
+    svg.addEventListener('pointerdown', (ev) => {
+      if (ev.button > 0) return;
+      const mk = ev.target.closest('.mk');
+      if (mk) { jump(+mk.dataset.i); return; }
+      ev.preventDefault();
+      coached();
+      resume = playing; if (playing) pause();
+      svg.classList.add('dragging');
+      try { svg.setPointerCapture(ev.pointerId); } catch (e) { /* capture is optional */ }
+      window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+      tau = toTau(ev); render(true);
+    });
+    svg.addEventListener('keydown', (ev) => {
+      const step = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (step) { ev.preventDefault(); tau = Math.max(0, Math.min(cur.total, tau + step)); render(true); }
+      if (ev.key === ' ') { ev.preventDefault(); playing ? pause() : play(); }
+    });
+  }
+  function markTrack() {
+    document.querySelectorAll('#track .mk').forEach((g, j) => {
+      const c = g.querySelector('circle, rect'), t = g.querySelector('text'), on = j === dk;
+      c.setAttribute('fill', on ? c.getAttribute('stroke') : '#fff'); t.setAttribute('fill', on ? '#fff' : '#1d1f23');
+    });
+  }
+  let rz = 0;
+  window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (cur) { drawTrack(); markTrack(); paint(); } }, 150); });
+
+  // ---- decision view
+  function drawDecision() {
+    const n = cur.decisions.length, post = dk >= n, d = cur.decisions[Math.min(dk, n - 1)], v = post ? 'rej' : verdict(cur, d);
+    const vtxt = post ? `${icon('bad')}<i>Q</i> &lt; 0 after the fall`
+      : { acc: `${icon('ok')}accepted`, int: `${icon('shield')}intervened: ${d.chosen || 'Learned'}`, rej: `${icon('bad')}rejected, no safer fallback`, none: 'no filter' }[v];
+    let h = `<div class="dtop"><button type="button" id="prev" aria-label="Previous step">‹</button>
+      <span class="t">${post ? 'After the fall' : `Decision ${d.i} / ${n}`}</span><button type="button" id="next" aria-label="Next step">›</button>
+      <span class="vchip ${v} verdict">${vtxt}</span>${imagines() ? '<span class="vchip wait">imagining…</span>' : ''}</div>`;
+    const note = NOTES[`${cur.k}:${post ? 'post' : d.i}`];
+    if (note) h += `<div class="note verdict">${note}</div>`;
+    if (cur.k === 'U') h += `<div class="empty">No filter: every nominal chunk executes.</div>`;
+    if (cur.k === 'V') h += valueView(d);
+    if (imagines()) h += planGrid(d);
+    $('dec').innerHTML = h;
+    $('prev').disabled = dk === 0; $('next').disabled = dk === steps() - 1;
+    $('prev').onclick = () => jump(dk - 1);
+    $('next').onclick = () => jump(dk + 1);
+    if (!imagines()) return;
+    $('dec').querySelectorAll('.cell').forEach((c) => {
+      const p = d.plans[+c.dataset.p], Ht = 26;
+      c._y = (s) => { const v = p.trace[Math.round(s)]; return 2 + (Ht - 4) * (Y1 - Math.max(Y0, Math.min(Y1, v))) / (Y1 - Y0); };
+      const v = c.querySelector('video');
+      v.addEventListener('loadedmetadata', () => syncPlan(v, true));
+      blobUrl(p.clip).then((u) => { if (v.isConnected) v.src = u; });
+    });
+  }
+
+  function planGrid(d) {
+    const nom = d.plans.filter((p) => p.kind === 'nominal'), fbp = d.plans.filter((p) => p.kind === 'fallback');
+    const best = nom.reduce((a, b) => (b.j > a.j ? b : a)), need = !d.certified, m = nom.length;
+    const idx = (p) => d.plans.indexOf(p);
+    let h = `<div class="pgrid" style="--m: ${m}; grid-template-columns: 112px repeat(${m}, minmax(0, 124px))"><span></span>`;
+    h += nom.map((p) => `<span class="colh"><span class="pill">${p.fb}</span></span>`).join('');
+    h += `<div class="rlab r1"><b>1 · nominal → fallback</b><span class="rule">accept if ${JT} ≥ 0</span><div class="rv v1">${icon(d.certified ? 'ok' : 'bad')}${JT} ${fmt(d.j_nom)}</div></div>`;
+    const keepNom = d.certified || d.chosen === 'nominal';
+    h += nom.map((p) => cell(p, idx(p), 1, keepNom && p === best ? (d.certified ? 'selok' : 'selbad') : '', cur.k === 'L' && d.i === 5 && p.fb === 'Learned')).join('');
+    const iv = need && d.chosen !== 'nominal';
+    h += `<div class="rlab r2"><b>2 · fallback alone</b><span class="rule">intervene if ${JS} &gt; ${JT}</span>`
+      + (need ? `<div class="rv v2">${icon(iv ? 'shield' : 'bad')}${JS} ${fmt(d.j_fb)}</div>` : '<div class="rv v2 nn">not needed</div>') + `</div>`;
+    h += fbp.map((p) => `<div class="r2">${cell(p, idx(p), 2, need && d.chosen === p.fb ? 'selfb' : '', false)}</div>`).join('');
+    return h + '</div>';
+  }
+
+  function cell(p, i, row, sel, vanish) {
+    const ok = p.j >= 0;
+    const tag = sel ? `<span class="seltag ${sel}">${sel === 'selfb' ? icon('shield') : sel === 'selok' ? icon('ok') : icon('bad')}selected</span>` : '';
+    return `<div class="cell${sel ? ' sel ' + sel : ''}" data-p="${i}" data-row="${row}" data-len="${p.trace.length}"><div class="clip">${tag}<video muted playsinline preload="auto" data-row="${row}" data-len="${p.trace.length}"></video>
+      <span class="badge b-cloud">${icon('cloud')}</span><span class="jc ${sel === 'selbad' ? 'bad' : sel || (ok ? 'ok' : 'bad')}"><i>J</i> ${fmt(p.j)}</span>
+      ${vanish ? '<span class="vanish"></span><span class="vanish-l">full bottle vanishes</span>' : ''}</div>
+      <div class="trace">${trace(p, i)}</div></div>`;
+  }
+
+  // the margin trace doubles as the plan's progress bar: it draws as the plan is imagined, then marks its minimum J
+  function trace(p, i) {
+    const W = 120, Ht = 26, span = 48, id = `cp-${dk}-${i}`;
+    const x = (s) => 1 + (W - 2) * s / (span - 1);
+    const y = (v) => 2 + (Ht - 4) * (Y1 - Math.max(Y0, Math.min(Y1, v))) / (Y1 - Y0);
+    const c = p.j >= 0 ? '#1f9d57' : '#d2443c';
+    let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Imagined margin per step; minimum ${p.j.toFixed(1)}">`;
+    s += `<defs><clipPath id="${id}"><rect class="cpr" x="0" y="0" width="0" height="${Ht}"/></clipPath></defs>`;
+    s += `<rect x="1" y="1" width="${x(p.trace.length - 1) - 1}" height="${Ht - 2}" rx="2" fill="#f1f2f4"/>`;
+    s += `<rect class="prog" x="1" y="1" width="0" height="${Ht - 2}" rx="2"/>`;
+    s += `<rect x="1" y="${y(0)}" width="${x(p.trace.length - 1) - 1}" height="${y(Y0) - y(0)}" fill="#fbeaea"/>`;
+    s += `<line x1="1" x2="${x(p.trace.length - 1)}" y1="${y(0)}" y2="${y(0)}" stroke="#d2443c" stroke-dasharray="3 2" stroke-width=".8"/>`;
+    if (p.kind === 'nominal') s += `<line x1="${x(15.5)}" x2="${x(15.5)}" y1="1" y2="${Ht - 1}" stroke="#b8bdc4" stroke-width=".8"/>`;
+    s += `<polyline clip-path="url(#${id})" points="${p.trace.map((v, k) => `${x(k).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="#1d1f23" stroke-width="1.3"/>`;
+    s += `<circle class="cur" r="2.4" fill="#1c5fc4"/>`;
+    s += `<circle class="mn" cx="${x(p.argmin)}" cy="${y(p.j)}" r="3.2" fill="none" stroke="${c}" stroke-width="1.5"/>`;
+    return s + '</svg>';
+  }
+
+  function valueView(d) {
+    const ds = cur.decisions, n = ds.length, W = 460, Hq = 210, L = 34, R = 14, top = 14, bot = 30;
+    const pts = ds.map((e) => e.q).concat(cur.post ? [cur.post.q] : []);
+    const lo = Math.min(-12, ...pts), hi = Math.max(10, ...pts);
+    const xs = (i) => L + (W - L - R) * (i + 0.5) / (n + 1), ys = (v) => top + (Hq - top - bot) * (hi - v) / (hi - lo);
+    let s = `<svg viewBox="0 0 ${W} ${Hq}" role="img" aria-label="Critic Q at each decision cycle">`;
+    s += `<rect x="${L}" y="${ys(0)}" width="${W - L - R}" height="${ys(lo) - ys(0)}" fill="#fbeaea"/>`;
+    s += `<line x1="${L}" x2="${W - R}" y1="${ys(0)}" y2="${ys(0)}" stroke="#d2443c" stroke-dasharray="4 3"/>`;
+    s += `<text x="${L - 6}" y="${ys(0) + 4}" font-size="11" text-anchor="end" fill="#555a62">0</text><text x="${L - 6}" y="${ys(hi) + 10}" font-size="12" text-anchor="end" font-style="italic" fill="#1d1f23">Q</text>`;
+    s += `<polyline points="${ds.map((e, i) => `${xs(i)},${ys(e.q)}`).join(' ')}" fill="none" stroke="#c4c8ce" stroke-width="1.5"/>`;
+    ds.forEach((e, i) => {
+      s += `<circle cx="${xs(i)}" cy="${ys(e.q)}" r="${i === dk ? 7 : 5}" fill="${e.q >= 0 ? '#1f9d57' : '#d2443c'}" stroke="#fff" stroke-width="1.5"/>`;
+      s += `<text x="${xs(i)}" y="${Hq - 10}" font-size="11" text-anchor="middle" fill="${i === dk ? '#1d1f23' : '#8b9098'}" font-weight="${i === dk ? 700 : 400}">${e.i}</text>`;
+    });
+    if (cur.post) {
+      const on = dk >= n;
+      s += `<circle cx="${xs(n)}" cy="${ys(cur.post.q)}" r="${on ? 7 : 5}" fill="${on ? '#d2443c' : 'none'}" stroke="#d2443c" stroke-width="2"/>`;
+      s += `<text x="${xs(n)}" y="${Hq - 10}" font-size="11" text-anchor="middle" fill="#d2443c" font-weight="${on ? 700 : 400}">after fall</text>`;
+    }
+    s += '</svg>';
+    const line = dk >= n ? `${icon('bad')}<i>Q</i> ${fmt(cur.post.q)} after the fall` : `${icon(d.q >= 0 ? 'ok' : 'bad')}<i>Q</i> ${fmt(d.q)}: accept if <i>Q</i> ≥ 0`;
+    return `<div class="qwrap">${s}</div><div class="rlab" style="margin-top:6px"><div class="rv">${line}</div></div>`;
+  }
+
+  // ---- results chips
+  $('rtabs').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
+    $('rtabs').querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-selected', String(c === b)));
+    ['oc', 'iv', 'cost'].forEach((v) => { $('v-' + v).hidden = v !== b.dataset.v; });
+  }));
+
+  // ---- nav: highlight the section in view, and its parent when a subsection is in view
+  const links = [...document.querySelectorAll('.topnav a')];
+  const targets = links.map((a) => document.querySelector(a.getAttribute('href')));
+  const spy = () => {
+    let on = 0;
+    targets.forEach((t, i) => { if (t && t.getBoundingClientRect().top < 120) on = i; });
+    links.forEach((a, i) => a.classList.toggle('on', i === on || (a.classList.contains('parent') && links[on].classList.contains('minor'))));
+  };
+  addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
 </body>
 </html>
