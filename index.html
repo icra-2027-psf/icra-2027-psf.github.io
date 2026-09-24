@@ -156,7 +156,9 @@ h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
 #ph circle { transition: r .12s; } .track svg:hover #ph circle { r: 6.5; }
 .track svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 .clock { font-size: .78rem; color: var(--faint); font-variant-numeric: tabular-nums; flex: none; }
-.speed { font: inherit; font-size: .78rem; border: 1px solid #dcdfe3; border-radius: 999px; background: var(--bg); padding: 3px 8px; color: var(--sub); cursor: pointer; flex: none; }
+.speed, .loop { font: inherit; font-size: .78rem; border: 1px solid #dcdfe3; border-radius: 999px; background: var(--bg); padding: 3px 8px; color: var(--sub); cursor: pointer; flex: none; }
+.loop[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.loop:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* disclosure */
 details.more { margin-top: 10px; font-size: .9rem; }
@@ -213,6 +215,11 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 }
 @media (max-width: 480px) {
   .pvid { max-width: 280px; }
+  .pbar { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; gap: 4px 8px; }
+  .track { grid-column: 2 / -1; }
+  .clock { grid-row: 2; grid-column: 2; }
+  .speed { grid-row: 2; grid-column: 3; }
+  .loop { grid-row: 2; grid-column: 4; }
   #panel .chead { display: none; }   /* the chip already names the approach and its outcome */
   .vanish-l { display: none; }   /* the note above names it; the circle marks where */
   .pdec { padding: 10px 10px; }
@@ -274,6 +281,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
         <button class="play" id="play" type="button" aria-label="Play or pause"><svg viewBox="0 0 24 24" id="playic"><path d="M7 4.5v15l12-7.5z" fill="#1d1f23"/></svg></button>
         <div class="track" id="track"></div>
         <button class="speed" id="speed" type="button" aria-label="Playback speed">1×</button>
+        <button class="loop" id="loop" type="button" aria-label="Loop trial" aria-pressed="false" title="Repeat the selected trial">Loop</button>
         <span class="clock" id="clock"></span>
       </div>
     </div>
@@ -409,7 +417,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   </div>
 </section>
 </main>
-<footer>No author-identifying information. Last updated 2026-09-23.</footer>
+<footer>No author-identifying information. Last updated 2026-09-24.</footer>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="#1d1f23" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.6" fill="none" stroke="#1d1f23" stroke-width="1.8"/></symbol>
@@ -458,7 +466,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   const clipUrl = {};
   // tau: playback time at 1x, the one clock everything follows. For the rollout filters it includes the
   // imagination at every decision cycle, during which the recording runs through the inference pause and then holds.
-  let T = [], cur = null, dk = -1, raf = 0, rate = 1, last = 0, tau = 0, playing = false, imgT = 0, phase = 'exec';
+  let T = [], cur = null, dk = -1, raf = 0, rate = 1, last = 0, tau = 0, playing = false, looping = false, imgT = 0, phase = 'exec';
   const video = $('real');
   const imagines = (t = cur) => t.k === 'L' || t.k === 'H';
 
@@ -538,8 +546,11 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   function tick(now) {
     if (!playing) return;
     tau += Math.min(0.1, (now - last) / 1000) * rate; last = now;
-    if (tau >= cur.total) { tau = cur.total; render(); pause(); return; }
-    render();
+    if (tau >= cur.total) {
+      if (!looping) { tau = cur.total; render(); pause(); return; }
+      tau %= cur.total;
+      render(true);
+    } else render();
     raf = requestAnimationFrame(tick);
   }
   $('play').addEventListener('click', () => (playing ? pause() : play()));
@@ -551,6 +562,11 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     $('speed').textContent = `${rate}×`;
     video.playbackRate = rate;
     document.querySelectorAll('#dec video').forEach((v) => { v.playbackRate = rate; });
+  });
+  $('loop').addEventListener('click', () => {
+    coached();
+    looping = !looping;
+    $('loop').setAttribute('aria-pressed', String(looping));
   });
   // jump to a decision cycle: replay its imagination while playing, show it complete while paused
   function jump(i) { tau = i >= cur.decisions.length ? cur.total : cur.tau[i] + (playing || !imagines() ? 0 : dur(cur.decisions[i]) - 0.01); render(true); }
