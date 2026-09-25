@@ -120,10 +120,12 @@ h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
 .jc.selok { background: var(--green); color: #fff; } .jc.selfb { background: var(--purple); color: #fff; }
 /* once the decision is made, the plan it selected is outlined and tagged, with one pulse as it is revealed */
 .seltag { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); z-index: 1; display: none; align-items: center; gap: 3px;
-  font-size: .66rem; font-weight: 700; color: #fff; border-radius: 999px; padding: 1px 7px 1px 4px; white-space: nowrap; }
-.seltag svg { width: 11px; height: 11px; }
+  font-size: .66rem; font-weight: 700; color: #fff; border-radius: 999px; padding: 1px 7px 1px 4px;
+  width: max-content; max-width: 100%; line-height: 1.2; text-align: center; white-space: normal; }
+.seltag svg { width: 11px; height: 11px; flex: none; }
 .seltag.selok { background: var(--green); } .seltag.selfb { background: var(--purple); } .seltag.selbad { background: var(--red); }
 #dec[data-stage="done"] .cell.sel .seltag { display: inline-flex; }
+#dec[data-stage="done"] .cell.sel .b-cloud { visibility: hidden; }
 #dec[data-stage="done"] .cell.sel .clip video { outline: 3px solid var(--sc); outline-offset: 1px; }
 #dec[data-stage="done"] .cell.sel .clip { animation: selpulse 1s ease-out 1; border-radius: 6px; }
 .cell.selok { --sc: var(--green); } .cell.selfb { --sc: var(--purple); } .cell.selbad { --sc: var(--red); }
@@ -224,6 +226,8 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   .vanish-l { display: none; }   /* the note above names it; the circle marks where */
   .pdec { padding: 10px 10px; }
   .pgrid { grid-template-columns: 76px repeat(var(--m), minmax(0, 88px)) !important; }
+  .seltag { font-size: .6rem; padding: 2px 3px; }
+  .seltag svg { display: none; }
   .rlab .rule { white-space: normal; }
   .rlab b { font-size: .74rem; } .rlab { font-size: .72rem; }
   .note { font-size: .8rem; }
@@ -417,7 +421,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   </div>
 </section>
 </main>
-<footer>No author-identifying information. Last updated 2026-09-24.</footer>
+<footer>No author-identifying information. Last updated 2026-09-25.</footer>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="#1d1f23" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.6" fill="none" stroke="#1d1f23" stroke-width="1.8"/></symbol>
@@ -770,7 +774,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 
   function cell(p, i, row, sel, vanish) {
     const ok = p.j >= 0;
-    const tag = sel ? `<span class="seltag ${sel}">${sel === 'selfb' ? icon('shield') : sel === 'selok' ? icon('ok') : icon('bad')}${ok ? 'certified' : 'safest'}</span>` : '';
+    const tag = sel ? `<span class="seltag ${sel}">${sel === 'selfb' ? icon('shield') : sel === 'selok' ? icon('ok') : icon('bad')}${ok ? 'predicted safe' : 'highest margin'}</span>` : '';
     return `<div class="cell${sel ? ' sel ' + sel : ''}" data-p="${i}" data-row="${row}" data-len="${p.trace.length}"><div class="clip">${tag}<video muted playsinline preload="auto" data-row="${row}" data-len="${p.trace.length}"></video>
       <span class="badge b-cloud">${icon('cloud')}</span><span class="jc ${sel === 'selbad' ? 'bad' : sel || (ok ? 'ok' : 'bad')}"><i>J</i> ${fmt(p.j)}</span>
       ${vanish ? '<span class="vanish"></span><span class="vanish-l">full bottle vanishes</span>' : ''}</div>
