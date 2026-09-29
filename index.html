@@ -329,7 +329,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   <details class="more">
     <summary>How to read</summary>
     <div class="body">
-      <p>The left pane is the simulator; the grey line is the path driven so far. The world model sees a 256 × 256 render of the same scene.</p>
+      <p>The left pane is the simulator; the grey line is the path driven so far. While a decision is imagined, the dashed lines show where each plan's actions would really take the car in the simulator, colored by the plan's imagined score; the paths drawn over the imagined clips on the right are the world model's own predictions. The world model sees a 256 × 256 render of the same scene.</p>
       <p>The filter decides every 0.2 s tick, over a 15-tick (3 s) horizon. The hand-designed fallbacks brake to a stop (<span class="fb">B</span>, full braking held to the end) or slow to 0.2 u/s and hold it (<span class="fb">S</span>), with the wheel straight (<span class="fb">St</span>) or at full lock left (<span class="fb">L</span>) or right (<span class="fb">R</span>) of the car's heading: <span class="fb">BSt</span>, <span class="fb">BL</span>, <span class="fb">BR</span>, <span class="fb">SSt</span>, <span class="fb">SL</span>, <span class="fb">SR</span>. <span class="sc">Rollout-L</span> adds <span class="fb">V</span>, the learned fallback that the value-based filter also uses.</p>
       <p>The right pane visualizes the filter's decision-making process at each decision.</p>
       <p>Row 1 imagines the nominal action followed by each fallback. Row 2 imagines each fallback alone; the filter needs it only when it rejects the nominal action, so otherwise it waits, paused and dimmed, until you press play. Each row plays one imagined plan, with every plan's imagined path drawn over it; pick a plan in the list to play it instead. Each plan scores its least safe imagined tick, <i>J</i>, the predicted time to collision in ticks, circled on its trace; the grey line marks where the nominal action ends.</p>
@@ -1118,7 +1118,8 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
         d[r].plans.forEach((p) => {
           ctx.beginPath(); ctx.strokeStyle = p.j >= 0 ? 'rgba(31,157,87,.75)' : 'rgba(210,68,60,.6)'; ctx.lineWidth = 1.6; ctx.setLineDash([4, 3]);
           ctx.moveTo(px(s[0]), py(s[1]));
-          for (let j = 0; j <= k; j++) ctx.lineTo(px(p.poses[j][0]), py(p.poses[j][1]));
+          const path = p.sim || p.poses;           // the true simulator path under the plan's action inputs
+          for (let j = 0; j <= k; j++) ctx.lineTo(px(path[j][0]), py(path[j][1]));
           ctx.stroke(); ctx.setLineDash([]);
         });
       });
