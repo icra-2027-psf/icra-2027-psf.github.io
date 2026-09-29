@@ -236,10 +236,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 .rplay svg { width: 12px; height: 12px; }
 .rplay:hover { background: #eef3fc; }
 .srow.man .rplay { display: none; }
-.sclip canvas.ghost { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
-.pdec.whole .sclip canvas.ghost { display: block; }
-.pdec.whole .sclip .sheet { visibility: hidden; }
-.dtop .loop { margin-left: 6px; }
 .fbkey { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--sub); margin: 0 0 10px; }
 .fbkey b { color: var(--ink); font-weight: 700; margin-right: 3px; }
 .skip { font-size: .8rem; color: var(--faint); border: 1.5px dashed #d9dce1; border-radius: 6px; padding: 10px; text-align: center; width: 168px; }
@@ -338,7 +334,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
       <p>The right pane visualizes the filter's decision-making process at each decision.</p>
       <p>Row 1 imagines the nominal action followed by each fallback. Row 2 imagines each fallback alone; the filter needs it only when it rejects the nominal action, so otherwise it waits, paused and dimmed, until you press play. Each row plays one imagined plan, with every plan's imagined path drawn over it; pick a plan in the list to play it instead. Each plan scores its least safe imagined tick, <i>J</i>, the predicted time to collision in ticks, circled on its trace; the grey line marks where the nominal action ends.</p>
       <p>On the bar, <span style="color:#6a8fd0">blue</span> marks step 1, <span style="color:#8f73e0">lavender</span> step 2, grey an executed nominal action, and purple a fallback. Markers show every decision, colored by its verdict: <span style="color:var(--green)">accepted</span> or <span style="color:var(--purple)">intervened</span>; the first two ticks fill the world model's three-frame context. Select a marker to jump to it. An episode that ends in a collision runs on for five more ticks (1 s), shaded red on the bar, to show what happens next.</p>
-      <p><b>Whole rollout</b> shows the imagined car at every tick of the shown plan at once, earlier ticks fainter; the decoder blurs the car late in the horizon.</p>
       <p>Imagined plans are rendered by a decoder that no decision uses.</p>
     </div>
   </details>
@@ -962,9 +957,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   const pick = {};                                  // plan shown in each row, per decision: "k:i:row" -> plan index
   // the fallback-alone row is imagined only on a rejection; otherwise it waits, paused, until the viewer plays it
   let man = null;
-  // whole rollout: the shown plan's imagined frames composited into one image, the car at every imagined tick so far
-  let whole = false;
-  const sheetImg = {};
   function manPlay() {
     man = { k: cur.k, dk, t: 0, last: performance.now() };
     const r = $('sdec').querySelector('.srow.r2'); if (r) r.classList.add('man');
@@ -1150,7 +1142,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
       const own = ownClock(row), k = own == null ? -1 : own * IMG, step = Math.max(0, Math.min(K - 1, k)), end = k >= K - 1;
       const c = r.querySelector('.cell'), b = +c.dataset.p, n = set.plans.length;
       c.querySelector('.sheet').style.backgroundPosition = `${100 * Math.floor(step) / (K - 1)}% ${n > 1 ? 100 * b / (n - 1) : 0}%`;
-      if (whole && r._img) ghost(c.querySelector('canvas.ghost'), r._img, b, k < 0 ? 0 : Math.floor(step));
       r.querySelectorAll('.paths polyline').forEach((pl, j) => {
         const pts = set.plans[j].poses.slice(0, k < 0 ? 0 : Math.floor(step) + 1);
         pl.setAttribute('points', pts.map((q) => `${(100 * (q[0] - W0()) / (W1() - W0())).toFixed(2)},${(100 * (H1() - q[1]) / (H1() - H0())).toFixed(2)}`).join(' '));
@@ -1162,19 +1153,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
       cu.setAttribute('cx', xs); cu.setAttribute('cy', ty(set.plans[b].trace[Math.round(step)])); cu.style.opacity = k >= 0 && !end ? 1 : 0;
       c.classList.toggle('done', end); r.classList.toggle('done', end);
     });
-  }
-
-  // frames 0..upto of plan b, darkest pixel wins (white ground, so every imagined car stays visible); earlier ticks fainter
-  function ghost(cvs, im, b, upto) {
-    const g = cvs.getContext('2d'), t = im.naturalWidth / K;
-    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-    g.drawImage(im, 0, b * t, t, t, 0, 0, cvs.width, cvs.height);
-    g.globalCompositeOperation = 'darken';
-    for (let j = 1; j <= upto; j++) {
-      g.globalAlpha = j === upto ? 1 : 0.3 + 0.5 * j / upto;
-      g.drawImage(im, j * t, b * t, t, t, 0, 0, cvs.width, cvs.height);
-    }
-    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
   }
 
   // ---- playback bar
@@ -1254,7 +1232,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     const vtxt = d.warmup && cur.k !== 'U' ? 'warm-up' : { acc: `${icon('ok')}accepted`, int: `${icon('shield')}intervened: ${d.action}`, none: 'no filter' }[v];
     let h = `<div class="dtop"><button type="button" id="sprev" aria-label="Previous decision">‹</button>
       <span class="t">Decision ${d.i} / ${n}</span><button type="button" id="snext" aria-label="Next decision">›</button>
-      ${imagines() ? `<button class="loop" id="swhole" type="button" aria-pressed="${whole}" title="Show the imagined car at every tick of the rollout at once">Whole rollout</button>` : ''}
       <span class="vchip ${v} verdict">${vtxt}</span>${imagines() && !d.warmup ? '<span class="vchip wait">imagining…</span>' : ''}</div>`;
     const note = NOTES[`${cur.k}:${d.i}`] || (d.post ? 'After the collision: the episode ends at contact, and runs on here for a few ticks to show what happens next.' : null);
     if (note) h += `<div class="note verdict">${note}</div>`;
@@ -1266,13 +1243,6 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     $('sprev').disabled = dk === 0; $('snext').disabled = dk === n - 1;
     $('sprev').onclick = () => jump(dk - 1);
     $('snext').onclick = () => jump(dk + 1);
-    $('sdec').classList.toggle('whole', whole);
-    if ($('swhole')) $('swhole').onclick = () => {
-      whole = !whole;
-      $('swhole').setAttribute('aria-pressed', String(whole));
-      $('sdec').classList.toggle('whole', whole);
-      paint();
-    };
     if (!imagines() || d.warmup) return;
     const rp = $('sdec').querySelector('.rplay');
     if (rp) rp.addEventListener('click', manPlay);
@@ -1280,14 +1250,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     $('sdec').querySelectorAll('.srow').forEach((r) => {
       const set = d[r.dataset.row === '1' ? 'after' : 'direct'];
       if (!set) return;
-      blobUrl(set.sheet).then((u) => {
-        const sh = r.querySelector('.sheet'); if (!sh || !sh.isConnected) return;
-        sh.style.backgroundImage = `url(${u})`;
-        const im = sheetImg[u] ||= new Image();
-        if (!im.src) im.src = u;
-        const ready = () => { r._img = im; if (r.isConnected) paint(); };
-        im.complete && im.naturalWidth ? ready() : im.addEventListener('load', ready, { once: true });
-      });
+      blobUrl(set.sheet).then((u) => { const sh = r.querySelector('.sheet'); if (sh && sh.isConnected) sh.style.backgroundImage = `url(${u})`; });
       r.querySelectorAll('.pl').forEach((b) => b.addEventListener('click', () => {
         pick[`${cur.k}:${d.i}:${r.dataset.row}`] = +b.dataset.p;
         drawDecision(); paint();
@@ -1319,7 +1282,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     return `<div class="srow r${row}" data-row="${row}">
       <div class="cell${selCls ? ' sel ' + selCls : ''}${on ? ' on' : ''}" data-p="${b}"><div class="clip sclip">${tag}
         ${row === '2' && d.certified ? `<button class="rplay" type="button" aria-label="Play the fallback-alone imagination">${icon('play')}play</button>` : ''}
-        <div class="sheet" style="background-size: ${K * 100}% ${n * 100}%"></div><canvas class="ghost" width="256" height="256"></canvas>
+        <div class="sheet" style="background-size: ${K * 100}% ${n * 100}%"></div>
         <svg class="paths" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
         <span class="badge b-cloud">${icon('cloud')}</span><span class="jc ${ok ? 'ok' : 'bad'}"><i>J</i> ${fmt(p.j)}</span></div>
         <div class="trace">${trace(p, `${key}`, row === '1')}</div></div>
