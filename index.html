@@ -96,15 +96,15 @@ h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
 .rlab .rv > svg { width: 15px; height: 15px; flex: none; }
 .rlab .rule { white-space: nowrap; }
 .dimv { transition: opacity .3s; }
-#dec[data-stage="a"] .v1, #dec:not([data-stage="done"]) .v2 { visibility: hidden; }
-#dec .r2 { transition: opacity .3s; }
-#dec[data-stage="a"] .r2, #dec[data-stage="ab"] .r2, #dec[data-need="0"] .r2 { opacity: .42; }
-#dec[data-stage="a"] .r1 b, #dec[data-stage="b"] .r2 b { color: var(--accent); }
+.pdec[data-stage="a"] .v1, .pdec:not([data-stage="done"]) .v2 { visibility: hidden; }
+.pdec .r2 { transition: opacity .3s; }
+.pdec[data-stage="a"] .r2, .pdec[data-stage="ab"] .r2, .pdec[data-need="0"] .r2 { opacity: .42; }
+.pdec[data-stage="a"] .r1 b, .pdec[data-stage="b"] .r2 b { color: var(--accent); }
 .rlab .rv.nn { color: var(--sub); font-weight: 500; }
-#dec.thinking .verdict { visibility: hidden; }
-#dec .vchip.wait { display: none; background: #e8effa; color: var(--accent); }
-#dec.thinking .vchip.wait { display: inline-flex; }
-#dec.thinking .vchip.verdict { display: none; }
+.pdec.thinking .verdict { visibility: hidden; }
+.pdec .vchip.wait { display: none; background: #e8effa; color: var(--accent); }
+.pdec.thinking .vchip.wait { display: inline-flex; }
+.pdec.thinking .vchip.verdict { display: none; }
 .cell .jc, .cell .mn { opacity: 0; transition: opacity .25s; }
 .cell.done .jc, .cell.done .mn { opacity: 1; }
 .cell .prog { fill: #dbe6f8; transition: fill .3s; } .cell.done .prog { fill: #f1f2f4; }
@@ -124,16 +124,16 @@ h3 { font-size: 1.12rem; margin: 30px 0 4px; font-weight: 600; }
   width: max-content; max-width: 100%; line-height: 1.2; text-align: center; white-space: normal; }
 .seltag svg { width: 11px; height: 11px; flex: none; }
 .seltag.selok { background: var(--green); } .seltag.selfb { background: var(--purple); } .seltag.selbad { background: var(--red); }
-#dec[data-stage="done"] .cell.sel .seltag { display: inline-flex; }
-#dec[data-stage="done"] .cell.sel .b-cloud { visibility: hidden; }
-#dec[data-stage="done"] .cell.sel .clip video { outline: 3px solid var(--sc); outline-offset: 1px; }
-#dec[data-stage="done"] .cell.sel .clip { animation: selpulse 1s ease-out 1; border-radius: 6px; }
+.pdec[data-stage="done"] .cell.sel .seltag { display: inline-flex; }
+.pdec[data-stage="done"] .cell.sel .b-cloud { visibility: hidden; }
+.pdec[data-stage="done"] .cell.sel .clip video { outline: 3px solid var(--sc); outline-offset: 1px; }
+.pdec[data-stage="done"] .cell.sel .clip { animation: selpulse 1s ease-out 1; border-radius: 6px; }
 .cell.selok { --sc: var(--green); } .cell.selfb { --sc: var(--purple); } .cell.selbad { --sc: var(--red); }
 @keyframes selpulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sc) 55%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
-@media (prefers-reduced-motion: reduce) { #dec[data-stage="done"] .cell.sel .clip { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pdec[data-stage="done"] .cell.sel .clip { animation: none; } }
 .trace svg { width: 100%; height: auto; display: block; margin-top: 2px; }
 .vanish, .vanish-l { opacity: 0; transition: opacity .3s; }
-#dec:not(.thinking) .vanish, #dec:not(.thinking) .vanish-l { opacity: 1; }
+.pdec:not(.thinking) .vanish, .pdec:not(.thinking) .vanish-l { opacity: 1; }
 .vanish { position: absolute; left: 30.8%; top: 59.4%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px dashed var(--amber); border-radius: 50%; pointer-events: none; }
 .vanish-l { position: absolute; left: 4px; top: 30px; background: var(--amber); color: #fff; font-size: .64rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; pointer-events: none; }
 .empty { margin: auto; color: var(--faint); font-size: .92rem; text-align: center; padding: 20px; }
@@ -207,6 +207,49 @@ tbody tr:last-child td { border-bottom: 0; }
 .acc .body table { margin: 8px 0 4px; font-size: .86rem; }
 footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: var(--faint); font-size: .82rem; border-top: 1px solid var(--rule); }
 
+/* simulation trial browser: the same player; plans of a row share one decoded clip, the list picks which plan it shows */
+.pvid canvas { width: 100%; display: block; aspect-ratio: 1; }
+.sgrid { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px 10px; align-items: start; padding-top: 4px; }
+.srow { display: flex; gap: 10px; min-width: 0; transition: opacity .3s; }
+.srow .cell { width: 168px; flex: none; }
+.sclip { position: relative; aspect-ratio: 1; border-radius: 5px; overflow: hidden; background: #fff; box-shadow: inset 0 0 0 1px var(--rule); }
+.sclip .sheet { position: absolute; inset: 0; background-repeat: no-repeat; }
+.sclip svg.paths { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pdec[data-stage="done"] .cell.sel.on .sclip { outline: 3px solid var(--sc); outline-offset: 1px; overflow: visible; }
+.pdec[data-stage="done"] .cell.sel:not(.on) .seltag { display: none; }
+.plist { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 3px 6px; align-content: start; }
+.pl { font: inherit; font-size: .74rem; display: flex; align-items: center; gap: 5px; border: 1px solid transparent; border-radius: 5px; background: none;
+  padding: 2px 6px; cursor: pointer; color: var(--ink); text-align: left; min-width: 0; }
+.pl:hover { background: var(--soft); }
+.pl[aria-pressed="true"] { border-color: #b9c8e6; background: #eef3fc; }
+.pl .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl .jv { font-weight: 700; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .25s; }
+.pl .jv.ok { color: var(--green); } .pl .jv.bad { color: var(--red); }
+.pl .sw { width: 9px; height: 3px; border-radius: 2px; flex: none; }
+.pl svg { width: 12px; height: 12px; flex: none; }
+.srow.done .pl .jv { opacity: 1; }
+.plh { grid-column: 1 / -1; font-size: .7rem; color: var(--faint); padding: 0 6px; }
+.pdec .srow.r2.man { opacity: 1 !important; }
+.rplay { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; display: inline-flex; align-items: center; gap: 4px;
+  font: inherit; font-size: .76rem; font-weight: 600; color: var(--accent); background: rgba(255,255,255,.95); border: 1px solid #b9c8e6;
+  border-radius: 999px; padding: 4px 11px 4px 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(28,95,196,.18); }
+.rplay svg { width: 12px; height: 12px; }
+.rplay:hover { background: #eef3fc; }
+.srow.man .rplay { display: none; }
+.sclip canvas.ghost { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+.pdec.whole .sclip canvas.ghost { display: block; }
+.pdec.whole .sclip .sheet { visibility: hidden; }
+.dtop .loop { margin-left: 6px; }
+.fbkey { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--sub); margin: 0 0 10px; }
+.fbkey b { color: var(--ink); font-weight: 700; margin-right: 3px; }
+.skip { font-size: .8rem; color: var(--faint); border: 1.5px dashed #d9dce1; border-radius: 6px; padding: 10px; text-align: center; width: 168px; }
+@media (max-width: 480px) {
+  .sgrid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .srow .cell, .skip { width: 132px; }
+  .plist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #spanel .chead { display: none; }
+}
+
 @media (max-width: 820px) {
   .pbody { display: flex; flex-direction: column; }
   .pvid { max-width: 420px; width: 100%; margin: 0 auto; }
@@ -217,6 +260,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 }
 @media (max-width: 480px) {
   .pvid { max-width: 280px; }
+  #spvid { max-width: 280px; }
   .pbar { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; gap: 4px 8px; }
   .track { grid-column: 2 / -1; }
   .clock { grid-row: 2; grid-column: 2; }
@@ -260,7 +304,44 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 
 <section id="simulation">
   <h2>Simulation</h2>
-  <div class="ph">Simulation results · to be added</div>
+  <p class="subt">A kinematic bicycle car drives to the green goal; touching a red obstacle or leaving the arena is a failure.</p>
+
+  <h3 id="sim-trials">One scenario, four approaches</h3>
+  <p class="subt">Each approach's episode from the same start, with every decision its filter made.</p>
+  <div class="chips" role="tablist" id="stabs"></div>
+  <div class="fbkey" aria-label="Fallback key"><span><b>B</b>brake to a stop</span><span><b>S</b>slow to 0.2 u/s</span><span><b>St</b>straight</span><span><b>L</b>steer left</span><span><b>R</b>steer right</span><span><b>V</b>value-based (learned) fallback</span></div>
+  <div class="card" id="spanel">
+    <div class="chead" id="sphead"></div>
+    <div class="pbody">
+      <div class="pvid" id="spvid">
+        <canvas id="sreal" width="480" height="480" role="img" aria-label="Simulator view of the episode"></canvas>
+        <span class="badge b-cam"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cam"/></svg>simulator</span>
+        <span class="badge b-exec" id="sbexec"></span>
+        <span class="badge b-stat" id="sbstat"></span>
+      </div>
+      <div class="pdec" id="sdec"></div>
+      <div class="pbar attn" id="spbar" style="grid-column: 1 / -1">
+        <div class="coach" id="scoach" role="note">Press play · drag the timeline to scrub · change the speed</div>
+        <button class="play" id="splay" type="button" aria-label="Play or pause"><svg viewBox="0 0 24 24" id="splayic"><path d="M7 4.5v15l12-7.5z" fill="#1d1f23"/></svg></button>
+        <div class="track" id="strack"></div>
+        <button class="speed" id="sspeed" type="button" aria-label="Playback speed">1×</button>
+        <button class="loop" id="sloop" type="button" aria-label="Loop episode" aria-pressed="false" title="Repeat the selected episode">Loop</button>
+        <span class="clock" id="sclock"></span>
+      </div>
+    </div>
+  </div>
+  <details class="more">
+    <summary>How to read</summary>
+    <div class="body">
+      <p>The left pane is the simulator; the grey line is the path driven so far. The world model sees a 256 × 256 render of the same scene.</p>
+      <p>The filter decides every 0.2 s tick, over a 15-tick (3 s) horizon. The hand-designed fallbacks brake to a stop (<span class="fb">B</span>, full braking held to the end) or slow to 0.2 u/s and hold it (<span class="fb">S</span>), with the wheel straight (<span class="fb">St</span>) or at full lock left (<span class="fb">L</span>) or right (<span class="fb">R</span>) of the car's heading: <span class="fb">BSt</span>, <span class="fb">BL</span>, <span class="fb">BR</span>, <span class="fb">SSt</span>, <span class="fb">SL</span>, <span class="fb">SR</span>. <span class="sc">Rollout-L</span> adds <span class="fb">V</span>, the learned fallback that the value-based filter also uses.</p>
+      <p>The right pane visualizes the filter's decision-making process at each decision.</p>
+      <p>Row 1 imagines the nominal action followed by each fallback. Row 2 imagines each fallback alone; the filter needs it only when it rejects the nominal action, so otherwise it waits, paused and dimmed, until you press play. Each row plays one imagined plan, with every plan's imagined path drawn over it; pick a plan in the list to play it instead. Each plan scores its least safe imagined tick, <i>J</i>, the predicted time to collision in ticks, circled on its trace; the grey line marks where the nominal action ends.</p>
+      <p>On the bar, <span style="color:#6a8fd0">blue</span> marks step 1, <span style="color:#8f73e0">lavender</span> step 2, grey an executed nominal action, and purple a fallback. Markers show every decision, colored by its verdict: <span style="color:var(--green)">accepted</span> or <span style="color:var(--purple)">intervened</span>; the first two ticks fill the world model's three-frame context. Select a marker to jump to it. An episode that ends in a collision runs on for five more ticks (1 s), shaded red on the bar, to show what happens next.</p>
+      <p><b>Whole rollout</b> shows the imagined car at every tick of the shown plan at once, earlier ticks fainter; the decoder blurs the car late in the horizon.</p>
+      <p>Imagined plans are rendered by a decoder that no decision uses.</p>
+    </div>
+  </details>
 </section>
 
 <section id="hardware">
@@ -431,6 +512,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.2l8 3v6.1c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5V5.2z" fill="#7454d4"/><path d="M8.2 12.2l2.7 2.7 5-5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c4c8ce"/><path d="M7.5 12h9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
   <symbol id="i-task" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="#1d1f23" stroke-width="2.4"/><path d="M7.5 12.3l3 3 6-6.4" fill="none" stroke="#1d1f23" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></symbol>
   <symbol id="i-safe" viewBox="0 0 24 24"><path d="M12 1.8l8.6 3.2v6.4c0 5.3-3.6 9.3-8.6 11-5-1.7-8.6-5.7-8.6-11V5z" fill="#1d1f23"/></symbol>
 </defs></svg>
 
@@ -606,7 +688,8 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   // imagination time within a plan's own step; negative before its step starts, null when its step is not needed
   function ownClock(row) {
     if (row !== '2') return imgT;
-    return cur.decisions[dk].certified ? null : imgT - step2At;
+    if (cur.decisions[dk].certified) return man && man.k === cur.k && man.dk === dk ? man.t : null;
+    return imgT - step2At;
   }
   function syncPlan(v, force) {
     if (v.readyState < 1) return;
@@ -839,6 +922,448 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
     links.forEach((a, i) => a.classList.toggle('on', i === on || (a.classList.contains('parent') && links[on].classList.contains('minor'))));
   };
   addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
+<script>
+// Simulation trial browser: the hardware player on a Dubins scenario. The filter decides every 0.2 s tick; the simulator
+// runs at 20 Hz. Each decision imagines 15 ticks; plans of a row share one decoded clip (a sprite sheet, rows = plans).
+(() => {
+  const FPS = 20, IMG = 10, Y0 = -6, Y1 = 16;   // simulator frames/s; imagined ticks/s at 1x; one TTC axis (ticks) for every trace
+  const K = 15, A = K / IMG, B = K / IMG, BEAT = 0.4, HOLD = 0.5;
+  const step2At = A + BEAT;
+  const thinkEnd = (d) => (d.certified ? A : step2At + B);
+  const dur = (d) => (d.warmup ? 0 : thinkEnd(d) + HOLD);
+  const $ = (id) => document.getElementById(id);
+  const icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+  const sup = (n, l) => `<i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="${l}"><use href="#i-${n}"/></svg></sup>`;
+  const JT = sup('task', 'task'), JS = sup('safe', 'safe');
+  const fmt = (x) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(1);
+  const DESC = {
+    U: 'nominal policy alone',
+    V: 'value-based filter · critic <i>Q</i> · fallback <span class="pill">V</span>',
+    L: 'our filter · fallbacks <span class="pill">BSt</span> <span class="pill">BL</span> <span class="pill">BR</span> <span class="pill">SSt</span> <span class="pill">SL</span> <span class="pill">SR</span> <span class="pill">V</span>',
+    H: 'our filter · fallbacks <span class="pill">BSt</span> <span class="pill">BL</span> <span class="pill">BR</span> <span class="pill">SSt</span> <span class="pill">SL</span> <span class="pill">SR</span>',
+  };
+  // Notes on key decisions, keyed "approach:decision"
+  // full names of the fallback codes, for tooltips
+  const FULL = { BSt: 'brake to a stop, straight', BL: 'brake to a stop, steer left', BR: 'brake to a stop, steer right',
+    SSt: 'slow, straight', SL: 'slow, steer left', SR: 'slow, steer right', V: 'value-based (learned) fallback' };
+  const NOTES = {
+    'H:9': 'Every imagined nominal → fallback plan ends in contact; <span class="fb">BL</span> alone stays clear.',
+    'H:11': 'The nominal action is rejected again; <span class="fb">BL</span> alone scores best (<i>J</i> +2.7) and executes.',
+    'L:11': 'Same state and verdict as <span class="sc">Rollout-H</span>, but alone <span class="fb">V</span> scores slightly higher (+2.8 vs +2.7) than <span class="fb">BL</span> and executes; the two runs diverge from here.',
+    'L:19': 'Every imagined plan, each fallback alone included, ends in contact; the car collides during this tick.',
+    'V:15': '<i>Q</i> turns negative too late: <span class="fb">V</span> executes, and the car collides during this tick.',
+  };
+  const COL = { acc: '#1f9d57', int: '#7454d4', rej: '#d2443c', none: '#c4c8ce' };
+  const verdict = (t, d) => t.k === 'U' || d.warmup ? 'none' : t.k === 'V' ? (d.q >= 0 ? 'acc' : 'int') : d.certified ? 'acc' : 'int';
+
+  let S = null, T = [], cur = null, dk = -1, raf = 0, rate = 1, last = 0, tau = 0, playing = false, looping = false, imgT = 0, phase = 'exec';
+  const pick = {};                                  // plan shown in each row, per decision: "k:i:row" -> plan index
+  // the fallback-alone row is imagined only on a rejection; otherwise it waits, paused, until the viewer plays it
+  let man = null;
+  // whole rollout: the shown plan's imagined frames composited into one image, the car at every imagined tick so far
+  let whole = false;
+  const sheetImg = {};
+  function manPlay() {
+    man = { k: cur.k, dk, t: 0, last: performance.now() };
+    const r = $('sdec').querySelector('.srow.r2'); if (r) r.classList.add('man');
+    requestAnimationFrame(manTick);
+  }
+  function manTick(now) {
+    if (!man || man.k !== cur.k || man.dk !== dk) return;
+    man.t += Math.min(0.1, (now - man.last) / 1000) * rate; man.last = now;
+    if (!playing) paint();
+    if (man.t < K / IMG) requestAnimationFrame(manTick);
+  }
+  const cv = $('sreal'), ctx = cv.getContext('2d'), bg = new Image(), car = new Image();
+  const imagines = (t = cur) => t.k === 'L' || t.k === 'H';
+
+  fetch('assets/sim/trials.json').then((r) => r.json()).then((d) => {
+    S = d.scene; T = d.trials;
+    bg.src = 'assets/sim/bg.png'; car.src = 'assets/sim/car.png';
+    bg.onload = car.onload = () => cur && paint();
+    T.forEach(schedule);
+    $('stabs').innerHTML = T.map((t) => `<button class="chip" role="tab" data-k="${t.k}" aria-selected="false">
+      <span class="dot ${t.outcome}"></span><span><span class="sc">${t.name}</span>${t.ours ? '†' : ''}</span></button>`).join('');
+    $('stabs').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => select(b.dataset.k)));
+    select('H');
+  });
+
+  // Playback schedule: segments mapping playback time to simulator frames (a hold has f0 == f1), and the playback time at
+  // which each decision begins. The rollout filters hold the scene while a decision is imagined.
+  function schedule(t) {
+    const segs = [], lastF = t.frames - 1, ds = t.decisions;
+    let x = 0;
+    t.tau = [];
+    const seg = (f0, f1, len) => { if (len > 0) segs.push({ f0, f1, t0: x, t1: x + len }); x += len; };
+    ds.forEach((d, i) => {
+      const nx = Math.min(i + 1 < ds.length ? ds[i + 1].frame : lastF, lastF);
+      t.tau[i] = x;
+      if (imagines(t)) seg(d.frame, d.frame, dur(d));
+      seg(d.frame, nx, (nx - d.frame) / FPS);
+    });
+    t.segs = segs; t.total = x;
+  }
+  const frameAt = (x) => {
+    for (const s of cur.segs) if (x <= s.t1) return s.f0 + (s.f1 - s.f0) * Math.max(0, x - s.t0) / (s.t1 - s.t0);
+    return cur.frames - 1;
+  };
+  const tauOf = (f) => {
+    for (const s of cur.segs) if (s.f1 > s.f0 && f >= s.f0 && f < s.f1) return s.t0 + (s.t1 - s.t0) * (f - s.f0) / (s.f1 - s.f0);
+    return cur.total;
+  };
+  const decisionAt = (x) => { let i = 0; cur.tau.forEach((t0, j) => { if (t0 <= x + 1e-6) i = j; }); return i; };
+
+  // sheets as blobs, so a decision's clips start together
+  const sheetUrl = {};
+  const blobUrl = (u) => (sheetUrl[u] ||= fetch(u).then((r) => r.blob()).then((b) => URL.createObjectURL(b)));
+
+  function select(k) {
+    pause();
+    cur = T.find((t) => t.k === k);
+    $('stabs').querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.k === k)));
+    $('sphead').innerHTML = `<span class="nm"><span class="sc">${cur.name}</span>${cur.ours ? '†' : ''}</span><span class="ds">${DESC[k]}</span>
+      <span class="oc ${cur.outcome}">${cur.outcome}</span>`;
+    if (imagines()) cur.decisions.forEach((d) => ['after', 'direct'].forEach((r) => d[r] && blobUrl(d[r].sheet)));
+    dk = -1; tau = 0; man = null;
+    drawTrack(); render(true);
+  }
+
+  // ---- the clock
+  function play() {
+    if (tau >= cur.total - 1e-3) tau = 0;
+    playing = true; last = performance.now();
+    coached();
+    render(true);
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+  }
+  function pause() { playing = false; cancelAnimationFrame(raf); if (cur) paint(); }
+  function tick(now) {
+    if (!playing) return;
+    tau += Math.min(0.1, (now - last) / 1000) * rate; last = now;
+    if (tau >= cur.total) {
+      if (!looping) { tau = cur.total; render(); pause(); return; }
+      tau %= cur.total;
+      render(true);
+    } else render();
+    raf = requestAnimationFrame(tick);
+  }
+  $('splay').addEventListener('click', () => (playing ? pause() : play()));
+  function coached() { $('scoach').hidden = true; $('spbar').classList.remove('attn'); }
+  $('sspeed').addEventListener('click', () => {
+    coached();
+    rate = rate === 1 ? 2 : rate === 2 ? 0.5 : 1;
+    $('sspeed').textContent = `${rate}×`;
+  });
+  $('sloop').addEventListener('click', () => {
+    coached();
+    looping = !looping;
+    $('sloop').setAttribute('aria-pressed', String(looping));
+  });
+  // jump to a decision: replay its imagination while playing, show it complete while paused
+  function jump(i) { const d = cur.decisions[i]; tau = cur.tau[i] + (playing || !imagines() || d.warmup ? 0 : dur(d) - 0.01); render(true); }
+
+  // ---- state at tau
+  function render(force) {
+    const i = decisionAt(tau), d = cur.decisions[i];
+    imgT = imagines() ? tau - cur.tau[i] : 0;
+    phase = imagines() && !d.warmup && imgT < dur(d) ? 'imagine' : 'exec';
+    if (i !== dk) { dk = i; man = null; drawDecision(); markTrack(); }
+    paint();
+  }
+  // imagination time within a row's own step; negative before its step starts, null when its step is not imagined
+  function ownClock(row) {
+    if (row !== '2') return imgT;
+    return cur.decisions[dk].certified ? null : imgT - step2At;
+  }
+
+  function paint() {
+    const f = frameAt(tau), fi = Math.round(f);
+    $('sclock').textContent = `${tau.toFixed(1)} / ${cur.total.toFixed(1)} s`;
+    $('splayic').innerHTML = playing ? '<path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z" fill="#1d1f23"/>' : '<path d="M7 4.5v15l12-7.5z" fill="#1d1f23"/>';
+    const hit = cur.onset != null && fi >= cur.onset, done = cur.outcome === 'success' && tau >= cur.total - 0.05;
+    $('sbstat').className = 'badge b-stat ' + (hit ? 'bad' : 'ok');
+    $('sbstat').innerHTML = hit ? (f > cur.onset + 4 ? `${icon('bad')}after the collision` : `${icon('bad')}collision`)
+      : done ? `${icon('ok')}goal reached` : `${icon('ok')}no contact`;
+    const d = cur.decisions[dk], thinking = imagines() && !d.warmup && imgT < thinkEnd(d);
+    const stage = !thinking ? 'done' : imgT < A ? 'a' : imgT < step2At ? 'ab' : 'b';
+    $('sdec').dataset.stage = stage; $('sdec').dataset.need = d.certified === false ? '1' : '0';
+    const running = phase === 'exec' && f < d.span[1] && !(hit && fi >= cur.frames - 1), fb = d.action !== 'nominal';
+    $('sbexec').className = 'badge b-exec' + (thinking ? ' think' : running && fb ? ' fbx' : '');
+    $('sbexec').innerHTML = thinking ? 'imagining plans…' : !running ? 'stopped' : fb ? `executing ${d.action}` : 'executing nominal';
+    $('sph').setAttribute('transform', `translate(${X(tau)} 0)`);
+    const right = imagines() ? phase === 'imagine' : cur.k === 'V' && tau - cur.tau[dk] < 0.9;
+    $('spvid').classList.toggle('focus', playing && !right);
+    $('sdec').classList.toggle('focus', playing && right);
+    $('sdec').classList.toggle('thinking', thinking);
+    if (imagines() && !d.warmup) paintPlans();
+    drawScene(f);
+  }
+
+  // ---- simulator view: the scene, the path driven so far, the imagined paths of the current decision, the car
+  const W0 = () => S.world_bounds[0], W1 = () => S.world_bounds[1], H0 = () => S.world_bounds[2], H1 = () => S.world_bounds[3];
+  const px = (x) => 480 * (x - W0()) / (W1() - W0()), py = (y) => 480 * (H1() - y) / (H1() - H0());
+  function stateAt(f) {
+    const a = Math.floor(f), b = Math.min(a + 1, cur.frames - 1), w = f - a, s0 = cur.states[a], s1 = cur.states[b];
+    let dth = s1[2] - s0[2]; dth = Math.atan2(Math.sin(dth), Math.cos(dth));
+    return [s0[0] + w * (s1[0] - s0[0]), s0[1] + w * (s1[1] - s0[1]), s0[2] + w * dth];
+  }
+  function drawScene(f) {
+    ctx.clearRect(0, 0, 480, 480);
+    if (bg.complete && bg.naturalWidth) ctx.drawImage(bg, 0, 0, 480, 480); else { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 480, 480); }
+    const s = stateAt(f);
+    ctx.lineCap = ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.strokeStyle = '#9aa0a8'; ctx.lineWidth = 2.2;
+    for (let j = 0; j <= Math.floor(f); j++) { const q = cur.states[j]; j ? ctx.lineTo(px(q[0]), py(q[1])) : ctx.moveTo(px(q[0]), py(q[1])); }
+    ctx.lineTo(px(s[0]), py(s[1])); ctx.stroke();
+    const d = cur.decisions[dk];
+    if (imagines() && !d.warmup && (phase === 'imagine' || (man && man.dk === dk && man.k === cur.k))) {
+      const rows = [['after', '1'], ['direct', '2']];
+      rows.forEach(([r, row]) => {
+        const own = ownClock(row); if (own == null || own < 0) return;
+        const k = Math.min(K - 1, own * IMG);
+        d[r].plans.forEach((p) => {
+          ctx.beginPath(); ctx.strokeStyle = p.j >= 0 ? 'rgba(31,157,87,.75)' : 'rgba(210,68,60,.6)'; ctx.lineWidth = 1.6; ctx.setLineDash([4, 3]);
+          ctx.moveTo(px(s[0]), py(s[1]));
+          for (let j = 0; j <= k; j++) ctx.lineTo(px(p.poses[j][0]), py(p.poses[j][1]));
+          ctx.stroke(); ctx.setLineDash([]);
+        });
+      });
+    }
+    if (car.complete && car.naturalWidth) {
+      const fp = S.footprint, ppu = 480 / (W1() - W0()), off = 0.5 * (fp.front - fp.rear);
+      ctx.save();
+      ctx.translate(px(s[0] + off * Math.cos(s[2])), py(s[1] + off * Math.sin(s[2])));
+      ctx.rotate(Math.PI / 2 - s[2]);
+      ctx.drawImage(car, -fp.half_width * ppu, -fp.length * ppu / 2, 2 * fp.half_width * ppu, fp.length * ppu);
+      ctx.restore();
+    }
+  }
+
+  // ---- plans: the sheet column follows the row's imagination clock, the paths and the trace draw as it goes
+  function paintPlans() {
+    const d = cur.decisions[dk];
+    document.querySelectorAll('#sdec .srow').forEach((r) => {
+      const row = r.dataset.row, set = d[row === '1' ? 'after' : 'direct'];
+      if (!set) return;
+      const own = ownClock(row), k = own == null ? -1 : own * IMG, step = Math.max(0, Math.min(K - 1, k)), end = k >= K - 1;
+      const c = r.querySelector('.cell'), b = +c.dataset.p, n = set.plans.length;
+      c.querySelector('.sheet').style.backgroundPosition = `${100 * Math.floor(step) / (K - 1)}% ${n > 1 ? 100 * b / (n - 1) : 0}%`;
+      if (whole && r._img) ghost(c.querySelector('canvas.ghost'), r._img, b, k < 0 ? 0 : Math.floor(step));
+      r.querySelectorAll('.paths polyline').forEach((pl, j) => {
+        const pts = set.plans[j].poses.slice(0, k < 0 ? 0 : Math.floor(step) + 1);
+        pl.setAttribute('points', pts.map((q) => `${(100 * (q[0] - W0()) / (W1() - W0())).toFixed(2)},${(100 * (H1() - q[1]) / (H1() - H0())).toFixed(2)}`).join(' '));
+      });
+      const xs = k < 0 ? 0 : 1 + 118 * step / (K - 1);
+      c.querySelector('.cpr').setAttribute('width', xs);
+      c.querySelector('.prog').setAttribute('width', Math.max(0, xs - 1));
+      const cu = c.querySelector('.cur');
+      cu.setAttribute('cx', xs); cu.setAttribute('cy', ty(set.plans[b].trace[Math.round(step)])); cu.style.opacity = k >= 0 && !end ? 1 : 0;
+      c.classList.toggle('done', end); r.classList.toggle('done', end);
+    });
+  }
+
+  // frames 0..upto of plan b, darkest pixel wins (white ground, so every imagined car stays visible); earlier ticks fainter
+  function ghost(cvs, im, b, upto) {
+    const g = cvs.getContext('2d'), t = im.naturalWidth / K;
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    g.drawImage(im, 0, b * t, t, t, 0, 0, cvs.width, cvs.height);
+    g.globalCompositeOperation = 'darken';
+    for (let j = 1; j <= upto; j++) {
+      g.globalAlpha = j === upto ? 1 : 0.3 + 0.5 * j / upto;
+      g.drawImage(im, j * t, b * t, t, t, 0, 0, cvs.width, cvs.height);
+    }
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+  }
+
+  // ---- playback bar
+  let TW = 600;
+  const PL = 14, PR = 14, H = 54;
+  const X = (x) => PL + (TW - PL - PR) * x / cur.total;
+  function drawTrack() {
+    TW = Math.max(200, Math.round($('strack').clientWidth || 600));
+    let s = `<svg viewBox="0 0 ${TW} ${H}" height="${H}" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="${cur.total.toFixed(1)}" tabindex="0">`;
+    s += `<rect x="${PL}" y="13" width="${TW - PL - PR}" height="2" rx="1" fill="#e6e8eb"/>`;
+    if (cur.onset != null) {
+      const ox = X(tauOf(cur.onset));
+      s += `<rect x="${ox}" y="3" width="${X(cur.total) - ox}" height="22" rx="3" fill="#fbeaea"/>`;
+    }
+    cur.decisions.forEach((d, i) => {
+      if (imagines() && !d.warmup) {
+        const t0 = cur.tau[i], band = (a, b, fill) => `<rect x="${X(a)}" y="9" width="${X(b) - X(a)}" height="10" rx="3" fill="${fill}"/>`;
+        s += band(t0, t0 + (d.certified ? dur(d) : step2At), '#cfddf6');
+        if (!d.certified) s += band(t0 + step2At, t0 + dur(d), '#ddd3f7');
+      }
+      const a = tauOf(d.span[0]), b = tauOf(Math.min(d.span[1], cur.frames - 1)), fb = d.action !== 'nominal';
+      s += `<rect x="${X(a)}" y="7" width="${Math.max(2, X(b) - X(a))}" height="14" rx="3" fill="${fb ? '#7454d4' : '#c4c8ce'}"/>`;
+    });
+    // markers shrink, and drop their numbers, when decisions sit close together
+    const gap = Math.min(...cur.tau.slice(1).map((t0, j) => X(t0) - X(cur.tau[j])), 99), r = Math.max(3.5, Math.min(9, gap / 2 - 0.5));
+    cur.decisions.forEach((d, j) => {
+      const cx = X(cur.tau[j]), lab = r >= 7 || j % 5 === 4 || j === 0;
+      s += `<g class="mk" data-i="${j}" style="cursor:pointer"><circle cx="${cx}" cy="40" r="${r}" fill="#fff" stroke="${COL[verdict(cur, d)]}" stroke-width="2"/>
+        ${lab ? `<text x="${cx}" y="${r >= 7 ? 44 : 30 + 22}" font-size="${r >= 7 ? 10.5 : 9}" font-weight="600" text-anchor="middle" fill="#1d1f23">${d.i}</text>` : ''}</g>`;
+    });
+    if (cur.onset != null) {
+      const ox = X(tauOf(cur.onset));
+      s += `<line x1="${ox}" x2="${ox}" y1="2" y2="26" stroke="#d2443c" stroke-width="2"/><text x="${ox - 4}" y="9" font-size="10" text-anchor="end" fill="#d2443c" font-weight="600">collision</text>`;
+    }
+    s += `<g id="sph" style="cursor:grab"><line x1="0" x2="0" y1="1" y2="28" stroke="#1d1f23" stroke-width="1.8"/><circle cx="0" cy="14" r="5" fill="#fff" stroke="#1d1f23" stroke-width="1.8"/></g></svg>`;
+    $('strack').innerHTML = s;
+    const svg = $('strack').querySelector('svg');
+    const toTau = (ev) => { const b = svg.getBoundingClientRect(); return Math.max(0, Math.min(cur.total, ((ev.clientX - b.left) * TW / b.width - PL) / (TW - PL - PR) * cur.total)); };
+    let resume = false;
+    const move = (ev) => { ev.preventDefault(); tau = toTau(ev); render(true); };
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      svg.classList.remove('dragging');
+      if (resume) play();
+    };
+    svg.addEventListener('pointerdown', (ev) => {
+      if (ev.button > 0) return;
+      const mk = ev.target.closest('.mk');
+      if (mk) { jump(+mk.dataset.i); return; }
+      ev.preventDefault();
+      coached();
+      resume = playing; if (playing) pause();
+      svg.classList.add('dragging');
+      try { svg.setPointerCapture(ev.pointerId); } catch (e) { /* capture is optional */ }
+      window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+      tau = toTau(ev); render(true);
+    });
+    svg.addEventListener('keydown', (ev) => {
+      const st = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (st) { ev.preventDefault(); tau = Math.max(0, Math.min(cur.total, tau + st)); render(true); }
+      if (ev.key === ' ') { ev.preventDefault(); playing ? pause() : play(); }
+    });
+  }
+  function markTrack() {
+    document.querySelectorAll('#strack .mk').forEach((g, j) => {
+      const c = g.querySelector('circle'), t = g.querySelector('text'), on = j === dk;
+      c.setAttribute('fill', on ? c.getAttribute('stroke') : '#fff');
+      if (t && t.getAttribute('y') === '44') t.setAttribute('fill', on ? '#fff' : '#1d1f23');
+    });
+  }
+  let rz = 0;
+  window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (cur) { drawTrack(); markTrack(); paint(); } }, 150); });
+
+  // ---- decision view
+  function drawDecision() {
+    const n = cur.decisions.length, d = cur.decisions[dk], v = verdict(cur, d);
+    const vtxt = d.warmup && cur.k !== 'U' ? 'warm-up' : { acc: `${icon('ok')}accepted`, int: `${icon('shield')}intervened: ${d.action}`, none: 'no filter' }[v];
+    let h = `<div class="dtop"><button type="button" id="sprev" aria-label="Previous decision">‹</button>
+      <span class="t">Decision ${d.i} / ${n}</span><button type="button" id="snext" aria-label="Next decision">›</button>
+      ${imagines() ? `<button class="loop" id="swhole" type="button" aria-pressed="${whole}" title="Show the imagined car at every tick of the rollout at once">Whole rollout</button>` : ''}
+      <span class="vchip ${v} verdict">${vtxt}</span>${imagines() && !d.warmup ? '<span class="vchip wait">imagining…</span>' : ''}</div>`;
+    const note = NOTES[`${cur.k}:${d.i}`] || (d.post ? 'After the collision: the episode ends at contact, and runs on here for a few ticks to show what happens next.' : null);
+    if (note) h += `<div class="note verdict">${note}</div>`;
+    if (cur.k === 'U') h += `<div class="empty">No filter: every nominal action executes.</div>`;
+    else if (d.warmup) h += `<div class="empty">Warm-up: the world model needs three frames of context, so the nominal action executes.</div>`;
+    else if (cur.k === 'V') h += valueView(d);
+    else h += planGrid(d);
+    $('sdec').innerHTML = h;
+    $('sprev').disabled = dk === 0; $('snext').disabled = dk === n - 1;
+    $('sprev').onclick = () => jump(dk - 1);
+    $('snext').onclick = () => jump(dk + 1);
+    $('sdec').classList.toggle('whole', whole);
+    if ($('swhole')) $('swhole').onclick = () => {
+      whole = !whole;
+      $('swhole').setAttribute('aria-pressed', String(whole));
+      $('sdec').classList.toggle('whole', whole);
+      paint();
+    };
+    if (!imagines() || d.warmup) return;
+    const rp = $('sdec').querySelector('.rplay');
+    if (rp) rp.addEventListener('click', manPlay);
+    if (man && man.k === cur.k && man.dk === dk) { const r2 = $('sdec').querySelector('.srow.r2'); if (r2) r2.classList.add('man'); }
+    $('sdec').querySelectorAll('.srow').forEach((r) => {
+      const set = d[r.dataset.row === '1' ? 'after' : 'direct'];
+      if (!set) return;
+      blobUrl(set.sheet).then((u) => {
+        const sh = r.querySelector('.sheet'); if (!sh || !sh.isConnected) return;
+        sh.style.backgroundImage = `url(${u})`;
+        const im = sheetImg[u] ||= new Image();
+        if (!im.src) im.src = u;
+        const ready = () => { r._img = im; if (r.isConnected) paint(); };
+        im.complete && im.naturalWidth ? ready() : im.addEventListener('load', ready, { once: true });
+      });
+      r.querySelectorAll('.pl').forEach((b) => b.addEventListener('click', () => {
+        pick[`${cur.k}:${d.i}:${r.dataset.row}`] = +b.dataset.p;
+        drawDecision(); paint();
+      }));
+    });
+  }
+
+  function planGrid(d) {
+    const rows = [], best = (ps) => ps.reduce((a, p, j) => (p.j > ps[a].j ? j : a), 0);
+    const b1 = best(d.after.plans), sel1 = d.certified ? 'selok' : '';
+    rows.push(`<div class="rlab r1"><b>1 · nominal → fallback</b><span class="rule">accept if ${JT} ≥ 0</span><div class="rv v1">${icon(d.certified ? 'ok' : 'bad')}${JT} ${fmt(d.j_nom)}</div></div>`);
+    rows.push(srow(d, '1', d.after, b1, sel1));
+    rows.push(`<div class="rlab r2"><b>2 · fallback alone</b><span class="rule">else execute the best ${JS}</span>`
+      + (!d.certified ? `<div class="rv v2">${icon('shield')}${JS} ${fmt(d.j_fb)}</div>` : '<div class="rv v2 nn">not needed</div>') + `</div>`);
+    rows.push(srow(d, '2', d.direct, d.certified ? best(d.direct.plans) : d.direct.plans.findIndex((p) => p.fb === d.chosen), d.certified ? '' : 'selfb'));
+    return `<div class="sgrid">${rows.join('')}</div>`;
+  }
+
+  // one row: the decoded clip of the shown plan with every plan's imagined path over it, its trace, and the plan list
+  function srow(d, row, set, sel, selCls) {
+    const key = `${cur.k}:${d.i}:${row}`, b = pick[key] ?? sel, p = set.plans[b], ok = p.j >= 0, n = set.plans.length;
+    const on = b === sel && selCls;
+    const tag = selCls ? `<span class="seltag ${selCls}">${selCls === 'selfb' ? icon('shield') : icon('ok')}${ok ? 'certified' : 'safest'}</span>` : '';
+    const paths = set.plans.map((q, j) => `<polyline fill="none" vector-effect="non-scaling-stroke" stroke="${q.j >= 0 ? '#1f9d57' : '#d2443c'}"
+      stroke-width="${j === b ? 2.4 : 1.2}" stroke-opacity="${j === b ? 1 : 0.55}" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+    const list = set.plans.map((q, j) => `<button class="pl" type="button" data-p="${j}" aria-pressed="${j === b}" title="${FULL[q.fb] || q.fb}">
+      <span class="sw" style="background:${q.j >= 0 ? '#1f9d57' : '#d2443c'}"></span><span class="nm">${q.fb}</span>
+      ${j === sel && selCls ? icon(selCls === 'selfb' ? 'shield' : 'ok') : ''}<span class="jv ${q.j >= 0 ? 'ok' : 'bad'}">${fmt(q.j)}</span></button>`).join('');
+    return `<div class="srow r${row}" data-row="${row}">
+      <div class="cell${selCls ? ' sel ' + selCls : ''}${on ? ' on' : ''}" data-p="${b}"><div class="clip sclip">${tag}
+        ${row === '2' && d.certified ? `<button class="rplay" type="button" aria-label="Play the fallback-alone imagination">${icon('play')}play</button>` : ''}
+        <div class="sheet" style="background-size: ${K * 100}% ${n * 100}%"></div><canvas class="ghost" width="256" height="256"></canvas>
+        <svg class="paths" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${paths}</svg>
+        <span class="badge b-cloud">${icon('cloud')}</span><span class="jc ${ok ? 'ok' : 'bad'}"><i>J</i> ${fmt(p.j)}</span></div>
+        <div class="trace">${trace(p, `${key}`, row === '1')}</div></div>
+      <div class="plist"><span class="plh" title="${FULL[p.fb] || ''}">${p.fb} shown · pick a plan</span>${list}</div></div>`;
+  }
+
+  const ty = (v) => 2 + 22 * (Y1 - Math.max(Y0, Math.min(Y1, v))) / (Y1 - Y0);
+  // the TTC trace doubles as the plan's progress bar: it draws as the plan is imagined, then marks its minimum J
+  function trace(p, id, nominal) {
+    const W = 120, Ht = 26, cid = `scp-${id.replace(/[^a-z0-9]/gi, '-')}`;
+    const x = (s) => 1 + (W - 2) * s / (K - 1);
+    const c = p.j >= 0 ? '#1f9d57' : '#d2443c';
+    let s = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="Imagined time to collision per tick; minimum ${p.j.toFixed(1)}">`;
+    s += `<defs><clipPath id="${cid}"><rect class="cpr" x="0" y="0" width="0" height="${Ht}"/></clipPath></defs>`;
+    s += `<rect x="1" y="1" width="${W - 2}" height="${Ht - 2}" rx="2" fill="#f1f2f4"/>`;
+    s += `<rect class="prog" x="1" y="1" width="0" height="${Ht - 2}" rx="2"/>`;
+    s += `<rect x="1" y="${ty(0)}" width="${W - 2}" height="${ty(Y0) - ty(0)}" fill="#fbeaea"/>`;
+    s += `<line x1="1" x2="${W - 1}" y1="${ty(0)}" y2="${ty(0)}" stroke="#d2443c" stroke-dasharray="3 2" stroke-width=".8"/>`;
+    if (nominal) s += `<line x1="${x(0.5)}" x2="${x(0.5)}" y1="1" y2="${Ht - 1}" stroke="#b8bdc4" stroke-width=".8"/>`;
+    s += `<polyline clip-path="url(#${cid})" points="${p.trace.map((v, k) => `${x(k).toFixed(1)},${ty(v).toFixed(1)}`).join(' ')}" fill="none" stroke="#1d1f23" stroke-width="1.3"/>`;
+    s += `<circle class="cur" r="2.4" fill="#1c5fc4"/>`;
+    s += `<circle class="mn" cx="${x(p.argmin)}" cy="${ty(p.j)}" r="3.2" fill="none" stroke="${c}" stroke-width="1.5"/>`;
+    return s + '</svg>';
+  }
+
+  function valueView(d) {
+    const ds = cur.decisions, n = ds.length, W = 460, Hq = 210, L = 34, R = 14, top = 14, bot = 30;
+    const qs = ds.filter((e) => e.q != null).map((e) => e.q);
+    const lo = Math.min(-5, ...qs), hi = Math.max(15, ...qs);
+    const xs = (i) => L + (W - L - R) * (i + 0.5) / n, ys = (v) => top + (Hq - top - bot) * (hi - v) / (hi - lo);
+    let s = `<svg viewBox="0 0 ${W} ${Hq}" role="img" aria-label="Critic Q at each decision">`;
+    s += `<rect x="${L}" y="${ys(0)}" width="${W - L - R}" height="${ys(lo) - ys(0)}" fill="#fbeaea"/>`;
+    s += `<line x1="${L}" x2="${W - R}" y1="${ys(0)}" y2="${ys(0)}" stroke="#d2443c" stroke-dasharray="4 3"/>`;
+    s += `<text x="${L - 6}" y="${ys(0) + 4}" font-size="11" text-anchor="end" fill="#555a62">0</text><text x="${L - 6}" y="${ys(hi) + 10}" font-size="12" text-anchor="end" font-style="italic" fill="#1d1f23">Q</text>`;
+    const pts = ds.map((e, i) => (e.q == null ? null : `${xs(i)},${ys(e.q)}`)).filter(Boolean);
+    s += `<polyline points="${pts.join(' ')}" fill="none" stroke="#c4c8ce" stroke-width="1.5"/>`;
+    ds.forEach((e, i) => {
+      if (e.q != null) s += `<circle cx="${xs(i)}" cy="${ys(e.q)}" r="${i === dk ? 7 : 5}" fill="${e.q >= 0 ? '#1f9d57' : '#d2443c'}" stroke="#fff" stroke-width="1.5"/>`;
+      if (i === dk || n <= 12 || i % 2 === 0) s += `<text x="${xs(i)}" y="${Hq - 10}" font-size="11" text-anchor="middle" fill="${i === dk ? '#1d1f23' : '#8b9098'}" font-weight="${i === dk ? 700 : 400}">${e.i}</text>`;
+    });
+    s += '</svg>';
+    const line = `${icon(d.q >= 0 ? 'ok' : 'bad')}<i>Q</i> ${fmt(d.q)}: accept if <i>Q</i> ≥ 0`;
+    return `<div class="qwrap">${s}</div><div class="rlab" style="margin-top:6px"><div class="rv">${line}</div></div>`;
+  }
 })();
 </script>
 </body>
