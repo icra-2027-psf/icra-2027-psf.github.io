@@ -683,8 +683,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   // imagination time within a plan's own step; negative before its step starts, null when its step is not needed
   function ownClock(row) {
     if (row !== '2') return imgT;
-    if (cur.decisions[dk].certified) return man && man.k === cur.k && man.dk === dk ? man.t : null;
-    return imgT - step2At;
+    return cur.decisions[dk].certified ? null : imgT - step2At;
   }
   function syncPlan(v, force) {
     if (v.readyState < 1) return;
@@ -1067,7 +1066,8 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   // imagination time within a row's own step; negative before its step starts, null when its step is not imagined
   function ownClock(row) {
     if (row !== '2') return imgT;
-    return cur.decisions[dk].certified ? null : imgT - step2At;
+    if (cur.decisions[dk].certified) return man && man.k === cur.k && man.dk === dk ? man.t : null;
+    return imgT - step2At;
   }
 
   function paint() {
