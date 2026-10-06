@@ -280,7 +280,9 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 <body>
 <nav class="topnav" aria-label="Sections"><div class="in">
   <a href="#top">Overview</a>
-  <a href="#simulation">Simulation</a>
+  <span class="grp"><a class="parent" href="#simulation">Simulation</a><span class="subs" aria-label="Simulation subsections">
+    <a class="minor" href="#sim-trials">Trials</a><a class="minor" href="#sim-outcomes">Outcomes</a><a class="minor" href="#sim-detection">Accuracy</a><a class="minor" href="#sim-details">Details</a>
+  </span></span>
   <span class="grp"><a class="parent" href="#hardware">Hardware</a><span class="subs" aria-label="Hardware subsections">
     <a class="minor" href="#trials">Trials</a><a class="minor" href="#outcomes">Outcomes</a><a class="minor" href="#detection">Detection</a><a class="minor" href="#details">Details</a>
   </span></span>
@@ -329,7 +331,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   <details class="more">
     <summary>How to read</summary>
     <div class="body">
-      <p>The left pane is the simulator; the grey line is the path driven so far. While a decision is imagined, the dashed lines show where each plan's actions would really take the car in the simulator, colored by the plan's imagined score; the paths drawn over the imagined clips on the right are the world model's own predictions. The world model sees a 256 × 256 render of the same scene.</p>
+      <p>The left pane is the simulator; the grey line is the path driven so far. While a decision is imagined, the dashed lines show where each plan's actions would really take the car in the simulator, colored by the plan's imagined score; the paths drawn over the imagined clips on the right are the world model's own predictions. The world model sees a 224 × 224 render of the same scene.</p>
       <p>The filter decides every 0.2 s tick, over a 15-tick (3 s) horizon. The hand-designed fallbacks brake to a stop (<span class="fb">B</span>, full braking held to the end) or slow to 0.2 u/s and hold it (<span class="fb">S</span>), with the wheel straight (<span class="fb">St</span>) or at full lock left (<span class="fb">L</span>) or right (<span class="fb">R</span>) of the car's heading: <span class="fb">BSt</span>, <span class="fb">BL</span>, <span class="fb">BR</span>, <span class="fb">SSt</span>, <span class="fb">SL</span>, <span class="fb">SR</span>. <span class="sc">Rollout-L</span> adds <span class="fb">V</span>, the learned fallback that the value-based filter also uses.</p>
       <p>The right pane visualizes the filter's decision-making process at each decision.</p>
       <p>Row 1 imagines the nominal action followed by each fallback. Row 2 imagines each fallback alone; the filter needs it only when it rejects the nominal action, so otherwise it waits, paused and dimmed, until you press play. Each row plays one imagined plan, with every plan's imagined path drawn over it; pick a plan in the list to play it instead. Each plan scores its least safe imagined tick, <i>J</i>, the predicted time to collision in ticks, circled on its trace; the grey line marks where the nominal action ends.</p>
@@ -337,6 +339,119 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
       <p>Imagined plans are rendered by a decoder that no decision uses.</p>
     </div>
   </details>
+
+  <h3 id="sim-outcomes">Closed-loop outcomes</h3>
+  <p class="subt">1,000 held-out scenarios per approach.</p>
+  <div class="chips" role="tablist" id="srtabs">
+    <button class="chip" role="tab" data-v="oc" aria-selected="true">Outcomes</button>
+    <button class="chip" role="tab" data-v="iv" aria-selected="false">Interventions</button>
+    <button class="chip" role="tab" data-v="cost" aria-selected="false">Cost</button>
+  </div>
+  <div class="card"><div class="rbody">
+    <div class="rview" id="sv-oc">
+      <div class="legend"><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--red)"></i>collision</span><span><i style="background:var(--grey)"></i>timeout</span></div>
+      <div class="bars">
+        <span class="lab"><span class="sc">Rollout-H</span>†</span><div class="bar"><span style="width:27.6%;background:var(--green)">27.6</span><span style="width:36.3%;background:var(--red)">36.3</span><span style="width:36.1%;background:var(--grey)"></span></div><span class="val">36.1</span>
+        <span class="lab"><span class="sc">Rollout-L</span>†</span><div class="bar"><span style="width:26.6%;background:var(--green)">26.6</span><span style="width:37.5%;background:var(--red)">37.5</span><span style="width:35.9%;background:var(--grey)"></span></div><span class="val">35.9</span>
+        <span class="lab"><span class="sc">Value</span></span><div class="bar"><span style="width:10.3%;background:var(--green)">10.3</span><span style="width:41.9%;background:var(--red)">41.9</span><span style="width:47.8%;background:var(--grey)"></span></div><span class="val">47.8</span>
+        <span class="lab"><span class="sc">Unfiltered</span></span><div class="bar"><span style="width:14.4%;background:var(--green)">14.4</span><span style="width:85.6%;background:var(--red)">85.6</span></div><span class="val">0.0</span>
+      </div>
+      <p class="subt" style="font-size:.8rem;margin:10px 0 0">Shares of episodes (%); timeout at right. † ours.</p>
+    </div>
+    <div class="rview" id="sv-iv" hidden>
+      <div class="legend"><span><i style="background:#8f73e0"></i><span class="fb">B</span> brake</span><span><i style="background:#c3b5f2"></i><span class="fb">S</span> slow</span><span><i style="background:#4b2fa8"></i><span class="fb">V</span> learned</span></div>
+      <div class="bars">
+        <span class="lab"><span class="sc">Rollout-H</span>†</span><div class="bar" style="background:none"><span style="width:62.1%;background:#8f73e0">49.7</span><span style="width:2.5%;background:#c3b5f2;color:#2a1d63"></span></div><span class="val">51.7</span>
+        <span class="lab"><span class="sc">Rollout-L</span>†</span><div class="bar" style="background:none"><span style="width:49.9%;background:#8f73e0">39.9</span><span style="width:1.8%;background:#c3b5f2;color:#2a1d63"></span><span style="width:14.2%;background:#4b2fa8">11.3</span></div><span class="val">52.7</span>
+        <span class="lab"><span class="sc">Value</span></span><div class="bar" style="background:none"><span style="width:88.9%;background:#4b2fa8">71.1</span></div><span class="val">71.1</span>
+        <span class="lab"><span class="sc">Unfiltered</span></span><span class="na">no filter</span>
+      </div>
+      <p class="subt" style="font-size:.8rem;margin:10px 0 0">Share of decision ticks that execute each fallback (%); axis to 80%.</p>
+    </div>
+    <div class="rview" id="sv-cost" hidden>
+      <div class="tscroll"><table>
+        <thead><tr><th></th><th>Filter compute (s)</th><th>Imagined steps</th><th>Training (GPU-h)</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sc">Rollout-H</span>†</td><td>0.07 ± 0.03</td><td>180</td><td>19.85 + 0.00</td></tr>
+          <tr><td><span class="sc">Rollout-L</span>†</td><td>0.10 ± 0.04</td><td>210</td><td>19.85 + 0.30</td></tr>
+          <tr><td><span class="sc">Value</span></td><td>0.00 ± 0.01</td><td>0</td><td>19.85 + 0.30</td></tr>
+          <tr><td><span class="sc">Unfiltered</span></td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table></div>
+      <p class="subt" style="font-size:.8rem;margin:10px 0 0">Per decision cycle; training is shared base + approach-specific.</p>
+    </div>
+  </div></div>
+  <details class="more">
+    <summary>Definitions</summary>
+    <div class="body"><dl class="kv">
+      <dt>Outcome</dt><dd>Success: the car reaches the goal. Collision: the car's body touches an obstacle or leaves the arena, which ends the episode. Timeout: neither within the 10 s limit.</dd>
+      <dt>Intervention</dt><dd>Over every decision tick of every episode, including the two that fill the world model's context. <span class="fb">B</span> and <span class="fb">S</span> each pool their three wheel settings.</dd>
+      <dt>Filter compute</dt><dd>Mean ± SD of image encoding, prediction, margin evaluation, the fallback laws, and calls to <span class="fb">V</span> or <i>Q</i>; excludes the nominal policy and the decoder.</dd>
+      <dt>Imagined steps</dt><dd>Each fallback enters twice: nominal then fallback (15 steps) and fallback alone (15 steps); a step is one 0.2 s tick.</dd>
+      <dt>Training</dt><dd>GPU-hours through the selected checkpoints. Base: autoencoder 2.89, dynamics model 14.95, safety fine-tune 1.07, safety margin 0.94. Additional: training of <span class="fb">V</span>, which also yields <i>Q</i>, 0.30.</dd>
+    </dl></div>
+  </details>
+
+  <h3 id="sim-detection">Monitor accuracy</h3>
+  <p class="subt">Every monitor scored offline on 10,002 held-out decision cycles from 3,334 episodes.</p>
+  <div class="card"><div class="tscroll"><table>
+    <thead><tr><th>Monitor</th><th>MAE ↓</th><th>RMSE ↓</th><th>Bias</th><th>ρ ↑</th><th>FPR (%) ↓</th><th>FNR (%) ↓</th><th>F1 (%) ↑</th><th>AUROC ↑</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sc">Rollout-H</span>†</td><td>7.88</td><td>9.28</td><td>−6.24</td><td><b>0.746</b></td><td>7.3</td><td><b>8.0</b></td><td><b>87.5</b></td><td><b>0.971</b></td></tr>
+      <tr><td><span class="sc">Rollout-L</span>†</td><td><b>7.59</b></td><td><b>9.17</b></td><td>−6.52</td><td>0.741</td><td><b>7.2</b></td><td>8.2</td><td>87.4</td><td>0.970</td></tr>
+      <tr><td><span class="sc">Value</span></td><td>8.67</td><td>10.03</td><td>−4.39</td><td>0.592</td><td>15.3</td><td>29.4</td><td>71.6</td><td>0.873</td></tr>
+    </tbody>
+  </table></div></div>
+  <details class="more">
+    <summary>Definitions</summary>
+    <div class="body"><dl class="kv">
+      <dt>Score</dt><dd>The plan score, the minimum predicted margin along the rollout: <i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="task"><use href="#i-task"/></svg></sup> for the rollout filters, <i>Q</i> for <span class="sc">Value</span>; in 0.2 s ticks, capped at 15.</dd>
+      <dt>Reference</dt><dd>The score of the same plan rolled out in the simulator, with each monitor's own fallback library; a plan with a negative score is unsafe.</dd>
+      <dt>Score error</dt><dd>MAE, RMSE and bias of the score against the reference, in ticks; negative bias means the monitor underestimates the margin.</dd>
+      <dt>ρ</dt><dd>Spearman rank correlation of the score with the reference.</dd>
+      <dt>FPR, FNR, F1</dt><dd>Of the unsafe classification at the deployed threshold τ = 0.</dd>
+      <dt>AUROC</dt><dd>Of the monitor's score, unsafe versus safe decision cycles.</dd>
+      <dt>Scope</dt><dd>Decision cycles sampled from episodes of the nominal policy without a filter, disjoint from the closed-loop scenarios.</dd>
+    </dl></div>
+  </details>
+
+  <h3 id="sim-details">Training and filter construction</h3>
+  <div class="acc">
+    <details><summary><span class="k">Data</span><span class="v">11,390 episodes, 402,435 frames</span></summary><div class="body"><ul>
+      <li>World model: 11,390 simulated training episodes at 5 Hz. 5,347 come from five driving policies (pursuit, pink noise, MPPI, stochastic soft actor-critic, and switching between them; 30% latch a braking window), 5,345 from the deterministic nominal policy and a learned reach-avoid fallback, and 698 from all seven. Contact does not end a recorded episode, so the car can drive through an obstacle and on.</li>
+      <li>Safety margin: the 10,007 training episodes that end at the goal, contact along the way included (265,279 frames), with 4,314 more nominal-policy episodes among them.</li>
+      <li>Observation: a 224 × 224 top-down render of the arena, as in the simulator view above, plus the car's heading, speed and steering angle.</li>
+      <li>Action: 2-D at 20 Hz (acceleration, steering rate), executed in chunks of 4 per 0.2 s tick.</li>
+      <li>Labels: signed time to collision from the recorded simulator states, measured on the car's footprint: ticks until the first contact with an obstacle or the boundary, negative inside contact, capped at 15 ticks (3 s).</li>
+    </ul></div></details>
+    <details><summary><span class="k">Nominal policy</span><span class="v">soft actor-critic, obstacle-agnostic</span></summary><div class="body"><ul>
+      <li>Soft actor-critic (two 256-unit layers) on the ground-truth vehicle state and the goal's relative position; the reward encourages progress toward the goal.</li>
+      <li>It receives no obstacle information, no termination on collision, and no collision penalty, so avoiding obstacles is left to the filter.</li>
+    </ul></div></details>
+    <details><summary><span class="k">World model</span><span class="v">learned latent tokens, transformer dynamics</span></summary><div class="body"><ul>
+      <li>Encoder: convolutional autoencoder trained on reconstruction; each image becomes 14 × 14 tokens of dimension 256.</li>
+      <li>Dynamics model: 4 layers, 8 heads, causal over a 3-step latent context with each step's action chunk and the car's heading, speed and steering angle; predicts the next latent embedding.</li>
+      <li>Training: latent, pixel, and state losses over 15-step autoregressive predictions, 58,657 updates; then a safety fine-tune adds the margin losses at weight 0.1 for 3,000 updates.</li>
+      <li>Decoder: trained with the encoder; renders imagined plans for inspection only.</li>
+    </ul></div></details>
+    <details><summary><span class="k">Safety margin</span><span class="v">signed time to collision on the token grid</span></summary><div class="body"><ul>
+      <li>0.98 M-parameter attention head over each predicted 14 × 14 token grid; the margin ℓ is the predicted signed time to collision, in ticks.</li>
+      <li>Trained on the frozen world model with the labels above: 12,040 updates at batch 64.</li>
+      <li>On the current frame of held-out decision cycles, its prediction ranks with the true time to collision at Spearman ρ 0.62.</li>
+    </ul></div></details>
+    <details><summary><span class="k">Fallbacks</span><span class="v"><span class="fb">B</span> / <span class="fb">S</span> × <span class="fb">St</span> / <span class="fb">L</span> / <span class="fb">R</span>, <span class="fb">V</span></span></summary><div class="body"><ul>
+      <li><span class="fb">BSt</span>, <span class="fb">BL</span>, <span class="fb">BR</span>: brake to a full stop and hold it, with the wheel straight or at full lock left or right.</li>
+      <li><span class="fb">SSt</span>, <span class="fb">SL</span>, <span class="fb">SR</span>: slow to 0.2 u/s and hold it, with the same three wheel settings. All six act on the state the world model predicts at each imagined step.</li>
+      <li><span class="fb">V</span>: reach-avoid reinforcement learning in the frozen world model's imagination, with the safety margin defining the avoid set; 64 parallel imagined episodes, selected after 17 epochs.</li>
+      <li>Critic <i>Q</i>: from the same training, on the nominal action followed by <span class="fb">V</span>.</li>
+    </ul></div></details>
+    <details><summary><span class="k">Filter</span><span class="v">accept, else intervene</span></summary><div class="body"><ul>
+      <li>Each plan scores its least safe imagined step: <i>J</i>(<i>p</i>) = min<sub><i>j</i></sub> ℓ<sub><i>t</i>+<i>j</i></sub>, over 15 steps.</li>
+      <li>Accept the nominal action if <i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="task"><use href="#i-task"/></svg></sup>, the best score over nominal-then-fallback plans, is ≥ 0; otherwise execute the best fallback-only plan, the one with the highest <i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="safe"><use href="#i-safe"/></svg></sup>.</li>
+      <li><span class="sc">Value</span> accepts when <i>Q</i> ≥ 0 and otherwise executes <span class="fb">V</span>.</li>
+      <li>The filter decides every 0.2 s on one RTX 5090; the simulator runs at 20 Hz.</li>
+    </ul></div></details>
+  </div>
 </section>
 
 <section id="hardware">
@@ -497,7 +612,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   </div>
 </section>
 </main>
-<footer>No author-identifying information. Last updated 2026-09-25.</footer>
+<footer>No author-identifying information. Last updated 2026-10-05.</footer>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 7h3l1.6-2h6.8L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="#1d1f23" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.6" fill="none" stroke="#1d1f23" stroke-width="1.8"/></symbol>
@@ -931,6 +1046,10 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
   const icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${n}"/></svg>`;
   const sup = (n, l) => `<i>J</i><sup class="ic"><svg viewBox="0 0 24 24" aria-label="${l}"><use href="#i-${n}"/></svg></sup>`;
   const JT = sup('task', 'task'), JS = sup('safe', 'safe');
+  $('srtabs').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
+    $('srtabs').querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-selected', String(c === b)));
+    ['oc', 'iv', 'cost'].forEach((v) => { $('sv-' + v).hidden = v !== b.dataset.v; });
+  }));
   const fmt = (x) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(1);
   const DESC = {
     U: 'nominal policy alone',
