@@ -40,6 +40,7 @@ main { max-width: var(--w); margin: 0 auto; padding: 0 16px 40px; }
 .hero .by { color: var(--sub); margin: 0 0 28px; }
 .ph { border: 1.5px dashed #cdd1d6; border-radius: 12px; background: #fafbfc; color: var(--faint); display: flex; align-items: center; justify-content: center; text-align: center; padding: 22px 16px; font-size: .95rem; }
 .ph.video { aspect-ratio: 16 / 9; max-width: 800px; margin: 0 auto; }
+.hero video { aspect-ratio: 16 / 9; max-width: 800px; margin: 0 auto; display: block; width: 100%; border-radius: 12px; background: #000; }
 
 section { padding: 36px 0 8px; border-top: 1px solid var(--rule); margin-top: 36px; }
 section.first { border-top: 0; margin-top: 8px; }
@@ -292,7 +293,7 @@ footer { max-width: var(--w); margin: 0 auto; padding: 18px 16px 44px; color: va
 <div class="hero" id="top">
   <h1>World Model Predictive Safety Filtering</h1>
   <p class="by">Anonymous authors · under double-blind review</p>
-  <div class="ph video">Accompanying video · coming soon</div>
+  <video controls playsinline preload="metadata" src="assets/overview-video.mp4"></video>
 </div>
 
 <section class="first" id="simulation">
